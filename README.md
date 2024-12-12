@@ -615,6 +615,28 @@ print(top_influential_classes)
 ```
 The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
 
+#### Descriptive Statistics for the top 5 bacterial classes:
+
+Calculating the mean, median, and standard deviation:
+```{r}
+bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")]
+study_group <- genera_counts_combined_clean$Study.Group
+
+# Bekijk een samenvatting van de dataset
+summary(bacteria_data)
+
+# Calculate mean, median and standard deviations per column by Study.Group
+mean_median_sd <- bacteria_data %>%
+  group_by(Study.Group) %>%
+  summarise(across(where(is.numeric), 
+                   list(mean = mean, median = median, sd = sd), 
+                   na.rm = TRUE))
+
+# Print the result
+print(mean_median_sd)
+```
+_nog iets typen over the mean, median and sd._
+
 
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
 ```{r}
@@ -644,7 +666,7 @@ shapiro_results
 ```
 If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be considered normally distributed; otherwise, a p-value below 0.05 indicates significant deviation from normality. In this case, only one value exceeds 0.05, suggesting that most of the data significantly deviate from a normal distribution.
 
-### PERMANOVA:
+#### PERMANOVA:
 ```{r}
 library(vegan)  # For adonis function
 
@@ -661,6 +683,7 @@ The F-statistic is 0.7408, , which measures the ratio of between-group variation
 
 The p-value is 0.52, which is greater than 0.05, indicating that there is no significant difference in the bacterial compositions between the study groups based on the Euclidean distance. 
 
+#### Conclusion:
 This suggests that the study groups (CD, UC, nonIBD) do not show a significant difference in terms of their bacterial composition after adjusting for all five bacterial classes considered. The null hypothesis cannot be rejected.
 
 
