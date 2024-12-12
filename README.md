@@ -567,7 +567,7 @@ cat("Number of NaN values in the dataset:", sum(is.nan(as.matrix(genera_counts_c
 Visualize the correlation matrix:
 ```{r}
 # Select only numeric variables
-numeric_vars <- sapply(genera_counts_combined_clean_withNAn, is.numeric)
+numeric_vars <- sapply(genera_counts_combined_clean_withNan, is.numeric)
 correlation_matrix <- cor(genera_counts_combined_clean_withNan[, numeric_vars], use = "pairwise.complete.obs")
 
 # Visualising the correlation matrix
