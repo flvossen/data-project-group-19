@@ -58,10 +58,10 @@ print(clean_data1)
 
 Read data
 ```{r}
-genera_counts <- read_tsv('genera.counts.tsv')
+genera_counts <- read_tsv("genera.counts.tsv")
 ```
 
-Do we have missing values, and if so, in which columns?
+Check for missing values.
 ```{r}
 sum(is.na(genera_counts))
 ```
@@ -86,34 +86,13 @@ unique_classes <- unique(classes)
 cat("Unique classes in the dataset:\n")
 print(unique_classes)
 ```
-We observe a total of 275 unique classes, excluding the first generated output, which is treated as NA because it originates from the Subject column.
+We observe a total of 275 unique classes, excluding the first generated output, which is treated as NA because it originates from the Sample column.
 
 
 Now we are going to replace all bacterial column names with the bacterial class names:
  
 ```{r}
-column_names <- colnames(genera_counts)
-
-# Function to extract the class from the column name
-extract_class_from_column_name <- function(column_name) {
-  match <- regmatches(column_name, regexec("c__([A-Za-z0-9_-]+)", column_name))
-  
-  if (length(match[[1]]) > 1) {
-    return(match[[1]][2])  # Return the class part
-  }
-  return(NA)  # No match found
-}
-
-# Obtain a vector of classes for each column
-classes <- sapply(column_names, extract_class_from_column_name)
-
-# Remove NAs from unique classes
-unique_classes <- unique(classes[!is.na(classes)])
-
-cat("Unique classes in the dataset:\n")
-print(unique_classes)
-
-# Function to rename column names without indexes
+# Function to rename column names
 rename_columns_no_index <- function(column_names, classes) {
   new_column_names <- character(length(column_names))
   
