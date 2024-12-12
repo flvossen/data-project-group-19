@@ -523,7 +523,7 @@ cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subjec
 
 _nog alles komen van correlatiematrix_
 
-## PCA:
+### PCA:
 
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
@@ -583,7 +583,7 @@ Look for the "elbow point," where the additional variance explained by subsequen
 pca_loadings <- as.data.frame(pca_result$rotation)
 most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
 ```
-From this, we can identify which classes play the most significant role and use them to examine whether these differ across study groups. 
+From this, we can identify which classes play the most significant role and use them to examine whether these differ across study groups. Taking the highest variables (or loadings) of a principal component, means identifying the original variables that contribute most significantly to that component. These variables have the strongest influence on the direction and variance explained by the component, highlighting the key factors or features driving the patterns captured by that principal component. Here we used principal component 2. 
 
 ```{r}
 # PCA loadings as a data frame
@@ -609,36 +609,49 @@ top_influential_classes <- do.call(rbind, top_influential_classes)
 # View the result
 print(top_influential_classes)
 ```
-Our bacterial classes we will look at are; Clostridia, Bacteroidia, gammaproteobacteria, negativicutes, and bacilli.
+Our bacterial classes we will look at are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
 
-Histograms for Bacterial Classes per Study Group:
+
+To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
 ```{r}
-# Lijst van bacterieklassen
+# List of bacteria classes
 bacterial_classes <- c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")
 
-# Voor elke bacterieklasse, maak histogrammen per Study.Group
+# For each bacterial class, create histograms by Study.Group
 for (class in bacterial_classes) {
   plot <- ggplot(genera_counts_combined_clean, aes_string(x = class, fill = "Study.Group")) +
     geom_histogram(bins = 30, alpha = 0.7, position = "dodge", color = "black") +
-    facet_wrap(~Study.Group, scales = "free") +  # Zet facetten per Study.Group
+    facet_wrap(~Study.Group, scales = "free") +  # Put facets per Study.Group
     labs(
-      title = paste("Histogram van", class, "per Study Group"),
+      title = paste("Histogram of", class, "per Study Group"),
       x = class,
       y = "Frequency"
     ) +
     theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5))  # Titel gecentreerd
+    theme(plot.title = element_text(hjust = 0.5))  # Title centred
   print(plot)
 }
-```
- 
 
-```{r}
 # Shapiro-Wilk test for each bacterial class
 shapiro_results <- sapply(genera_counts_combined_clean[bacterial_classes], function(x) shapiro.test(x)$p.value)
 
 # Display results
 shapiro_results
+```
+If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be considered normally distributed; otherwise, a p-value below 0.05 indicates significant deviation from normality. In this case, only one value exceeds 0.05, suggesting that most of the data significantly deviate from a normal distribution.
+
+PERMANOVA for the top 5 bacterial classes (:
+```{r}
+library(vegan)  # For adonis function
+
+# Example data (replace with your actual dataset)
+bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")]
+study_group <- genera_counts_combined_clean$Study.Group
+
+# Perform PERMANOVA
+perm_result <- adonis2(bacteria_data ~ study_group , method = "euclidean", permutations = 999)
+print(perm_result)
+
 ```
 
 
