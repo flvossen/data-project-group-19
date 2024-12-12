@@ -583,7 +583,7 @@ Look for the "elbow point," where the additional variance explained by subsequen
 pca_loadings <- as.data.frame(pca_result$rotation)
 most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
 ```
-From this, we can identify which classes play the most significant role and use them to examine whether these differ across study groups. Taking the highest variables (or loadings) of a principal component, means identifying the original variables that contribute most significantly to that component. These variables have the strongest influence on the direction and variance explained by the component, highlighting the key factors or features driving the patterns captured by that principal component. Here we used principal component 2. 
+From this, we can identify which classes play the most important role and use them to examine whether these differ across study groups. Taking the highest variables (or loadings) of a principal component, means identifying the original variables that contribute most significantly to that component. These variables have the strongest influence on the direction and variance explained by the component, highlighting the key factors or features driving the patterns captured by that principal component. Here we used principal component 2. 
 
 ```{r}
 # PCA loadings as a data frame
@@ -609,7 +609,7 @@ top_influential_classes <- do.call(rbind, top_influential_classes)
 # View the result
 print(top_influential_classes)
 ```
-Our bacterial classes we will look at are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
+The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
 
 
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
@@ -640,19 +640,24 @@ shapiro_results
 ```
 If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be considered normally distributed; otherwise, a p-value below 0.05 indicates significant deviation from normality. In this case, only one value exceeds 0.05, suggesting that most of the data significantly deviate from a normal distribution.
 
-PERMANOVA for the top 5 bacterial classes (:
+### PERMANOVA:
 ```{r}
 library(vegan)  # For adonis function
 
-# Example data (replace with your actual dataset)
 bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")]
 study_group <- genera_counts_combined_clean$Study.Group
 
 # Perform PERMANOVA
 perm_result <- adonis2(bacteria_data ~ study_group , method = "euclidean", permutations = 999)
 print(perm_result)
-
 ```
+R2 is the proportion of total variation explained by the study group factor is 0.01432. This means that only about 1.43% of the total variation in bacterial composition can be explained by the study group classification.
+
+The F-statistic is 0.7408, , which measures the ratio of between-group variation to within-group variation. A higher F-value suggests more separation between groups, but this value is relatively low here.
+
+The p-value is 0.52, which is greater than 0.05, indicating that there is no significant difference in the bacterial compositions between the study groups based on the Euclidean distance. 
+
+This suggests that the study groups (CD, UC, nonIBD) do not show a significant difference in terms of their bacterial composition after adjusting for all five bacterial classes considered. The null hypothesis cannot be rejected.
 
 
 
