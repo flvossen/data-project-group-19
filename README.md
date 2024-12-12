@@ -367,15 +367,22 @@ The effect size indicates that the group classification ("IBD" vs "non-IBD") sig
 
 Needed libraries
 ```{r}
-# Install the package if not already installed
-install.packages("dplyr")
-
+# Install the package by removing #, if not already installed
+# install.packages("tidyverse")
+# install.package("ggplot2")
+# install.package("vegan")
+# install.package("ggcorrplot")
+# install.packages("dplyr")
 
 library(tidyverse)
 library(ggplot2)
 library(vegan) # For adonis2 function
 library(ggcorrplot)
 library(dplyr)
+```
+
+```{r}
+file_path <- "C:/Users/..."
 ```
 
 Read data
