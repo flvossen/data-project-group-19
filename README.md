@@ -143,8 +143,8 @@ Histogram of fecal calprotectine per group WITH outliers:
 ```{r} 
 ggplot(metadata_clean, aes(x = fecalcal_mean, fill = Study.Group)) + 
   geom_histogram(binwidth = 50, alpha = 0.6, position = "identity") + 
-  facet_wrap(~Study.Group) +  # Maak aparte plots per groep 
-  labs(title = "Histogram per Groep", x = "Calprotectine (µg/g)", y = "Frequentie") + 
+  facet_wrap(~Study.Group) +  # Create separate plots for each group
+  labs(title = "Histogram per Group", x = "Calprotectine (µg/g)", y = "Frequency") + 
   theme_minimal() 
 ``` 
 
@@ -186,7 +186,7 @@ Histogram of fecal calprotectine per group WITHOUT outliers:
 ggplot(clean_data_unique, aes(x = fecalcal_mean, fill = Study.Group)) + 
   geom_histogram(binwidth = 50, alpha = 0.6, position = "identity") + 
   facet_wrap(~Study.Group) +  
-  labs(title = "Histogram per Groep (zonder outliers)", x = "Calprotectine (µg/g)", y = "Frequentie") + 
+  labs(title = "Histogram per Group (no outliers)", x = "Calprotectine (µg/g)", y = "Frequency") + 
   theme_minimal()
 ```
 
@@ -220,7 +220,7 @@ Post-hoc analysis will be conducted using the pairwise Wilcoxon test to examine 
 pairwise_wilcox <- pairwise.wilcox.test( 
   x = clean_data_unique$fecalcal_mean, 
   g = clean_data_unique$Study.Group, 
-  p.adjust.method = "bonferroni"  # Correctie voor multiple testing 
+  p.adjust.method = "bonferroni"  # Correction for multiple testing 
 ) 
 print(pairwise_wilcox) 
 ``` 
@@ -624,7 +624,7 @@ for (class in bacterial_classes) {
     labs(
       title = paste("Histogram van", class, "per Study Group"),
       x = class,
-      y = "Frequentie"
+      y = "Frequency"
     ) +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5))  # Titel gecentreerd
