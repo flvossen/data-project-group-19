@@ -369,7 +369,7 @@ Needed libraries
 ```{r}
 library(tidyverse)
 library(ggplot2)
-library(vegan) # For adonis function
+library(vegan) # For adonis2 function
 library(ggcorrplot)
 ```
 
