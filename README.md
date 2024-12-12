@@ -365,9 +365,18 @@ The effect size indicates that the group classification ("IBD" vs "non-IBD") sig
 
 ### Data preparation:
 
+Needed libraries
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(vegan) # For adonis function
+library(ggcorrplot)
+```
+
 Read data
 ```{r}
 genera_counts <- read_tsv('genera.counts.tsv')
+metadata <- read_tsv('metadata.tsv')
 ```
 
 Check for missing values.
@@ -545,10 +554,6 @@ cat("Number of NaN values in the dataset:", sum(is.nan(as.matrix(genera_counts_c
 
 Visualize the correlation matrix:
 ```{r}
-install.packages('ggcorrplot')
-
-library(ggcorrplot)
-
 # Select only numeric variables
 numeric_vars <- sapply(genera_counts_combined_clean, is.numeric)
 correlation_matrix <- cor(genera_counts_combined_clean[, numeric_vars], use = "pairwise.complete.obs")
@@ -559,11 +564,11 @@ ggcorrplot(correlation_matrix,
            title = "Correlation Matrix", 
            outline.col = "white")
 ```
+The correlation matrix reveals that the dataset contains a large number of variables, indicating high dimensionality. It shows a spread of correlations: some variables exhibit strong positive or negative correlations, while others are scarcely correlated.
 
+Therefore, applying a technique such as Principal Component Analysis (PCA) is valuable. PCA can help reduce dimensionality by identifying the most significant components in the data, while retaining a large portion of the variation. This simplifies and makes the dataset more efficient for further analysis.
 
-_nog uitleg komen van correlatiematrix_
-
-### Dimensionality Reduction:
+### Dimensionality reduction:
 
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
@@ -703,8 +708,6 @@ If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be co
 
 ### PERMANOVA:
 ```{r}
-library(vegan)  # For adonis function
-
 bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")]
 study_group <- genera_counts_combined_clean$Study.Group
 
