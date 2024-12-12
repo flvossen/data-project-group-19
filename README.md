@@ -439,7 +439,7 @@ unknown_count <- sum(colnames(genera_counts) == "Unknown")
 cat("Aantal 'Unknown' kolommen:", unknown_count, "\n")
 ```
 
-Now, merge the columns with the same name. Additionally, rename the 'Unknown' column back to 'Samples'.
+Now, merge the columns with the same name. Only the column 'Sample' was named 'Unknown'. So, rename the 'Unknown' column back to 'Samples'.
 ```{r}
 # Step 1: Keep ‘Unknown’ untouched and rename to ‘Sample’
 genera_counts$Sample <- genera_counts$Unknown
