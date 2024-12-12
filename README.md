@@ -365,7 +365,7 @@ Read data
 genera_counts <- read_tsv('genera.counts.tsv')
 ```
 
-Do we have missing values, and if so, in which columns?
+Check for missing values.
 ```{r}
 sum(is.na(genera_counts))
 ```
@@ -373,96 +373,91 @@ We don't have missing data values. Now we need to know what the different bacter
 
 ```{r}
 column_names <- colnames(genera_counts)
-extract_class_from_column_name <- function(column_name) {
-  match <- regmatches(column_name, regexec("c__([A-Za-z0-9_-]+)", column_name))
-  if (length(match[[1]]) > 1) {
-    return(match[[1]][2])  
-  }
-  return(NA)  # Geen match gevonden
-}
-classes <- sapply(column_names, extract_class_from_column_name)
-unique_classes <- unique(classes)
-cat("Unieke classes in de dataset:\n")
-print(unique_classes)
-```
-In this, we see that we have 275 unique classes (the first class of output is counted as an NA). 
 
-Now we are going to replace all bacterial column names with the bacterial class name:
- 
-```
-column_names <- colnames(genera_counts)
-
-# Functie om de klasse te extraheren uit de kolomnaam
 extract_class_from_column_name <- function(column_name) {
   match <- regmatches(column_name, regexec("c__([A-Za-z0-9_-]+)", column_name))
   
   if (length(match[[1]]) > 1) {
-    return(match[[1]][2])  # Return the class part
+    return(match[[1]][2])  
   }
   return(NA)  # No match found
 }
 
-# Verkrijg een vector van klassen voor elke kolom
+# Obtain a vector of classes for each column
 classes <- sapply(column_names, extract_class_from_column_name)
 
-# Verwijder NA's uit de unieke klassen
-unique_classes <- unique(classes[!is.na(classes)])
+unique_classes <- unique(classes)
 
-cat("Unieke classes in de dataset:\n")
+cat("Unique classes in the dataset:\n")
 print(unique_classes)
+```
+We observe a total of 275 unique classes, excluding the first generated output, which is treated as NA because it originates from the Sample column.
 
-# Functie om de kolomnamen te hernoemen zonder indexen
-rename_columns_no_index <- function(column_names, classes) {
+
+Now we are going to replace all bacterial column names with the bacterial class names:
+ 
+```{r}
+# Function to rename column names
+rename_columns <- function(column_names, classes) {
   new_column_names <- character(length(column_names))
   
-  # Loop over de kolomnamen
+  # Loop over the column names
   for (i in seq_along(column_names)) {
     class_name <- classes[i]
     
-    # Alleen doorgaan als de class_name geldig is (niet NA)
+    # Only continue if the class_name is valid (not NA)
     if (!is.na(class_name)) {
       new_column_names[i] <- class_name  # No index added, just class name
     } else {
-      new_column_names[i] <- "Unknown"  # Als geen klasse is gevonden, noem de kolom "Unknown"
+      new_column_names[i] <- "Unknown"  # If no class is found, call the column "Unknown"
     }
   }
   
   return(new_column_names)
 }
 
-# Pas de functie toe om kolomnamen zonder indexen te hernoemen
-new_column_names <- rename_columns_no_index(column_names, classes)
+# Apply function to rename column names
+new_column_names <- rename_columns(column_names, classes)
 
-# Hernoem de kolommen in de dataset
+# Rename the columns in the dataset
 colnames(genera_counts) <- new_column_names
 
-# Bekijk de vernieuwde kolomnamen
+# Check out the updated column names
 print(colnames(genera_counts))
 head(genera_counts)
 ```	
-Sample is currently labeled as 'unknown'. Check if any other column is labeled as 'unknown' as well.
 
-_hier nog code plaken._
 
-Now, merge the columns with the same name. Additionally, rename the 'unknown' column back to 'samples'.
+Samples column is currently labeled as 'Unknown'. Check if any other column is labeled as 'Unknown' as well.
+
+
+```{r}
+# Count how many times ‘Unknown’ appears in the column names
+unknown_count <- sum(colnames(genera_counts) == "Unknown")
+
+# Print the result
+cat("Aantal 'Unknown' kolommen:", unknown_count, "\n")
 ```
 
+Now, merge the columns with the same name. Additionally, rename the 'Unknown' column back to 'Samples'.
+```{r}
+# Step 1: Keep ‘Unknown’ untouched and rename to ‘Sample’
 genera_counts$Sample <- genera_counts$Unknown
 genera_counts <- genera_counts[, names(genera_counts) != "Unknown"]
 
-# Stap 2: Controleer en converteer alleen kolommen die numeriek zijn
+# Step 2: Check and convert only columns that are numeric
 genera_counts_numeric <- genera_counts
 genera_counts_numeric[] <- lapply(genera_counts_numeric, function(col) {
   if (is.numeric(col)) {
-    col # Als de kolom al numeriek is, laat deze ongemoeid
+    col # If the column is already numeric, leave it untouched
   } else if (is.factor(col) || is.character(col)) {
-    suppressWarnings(as.numeric(col)) # Probeer tekst/factor om te zetten naar numeriek
+    suppressWarnings(as.numeric(col)) # Try converting text/factor to numeric
   } else {
-    NULL # Kolommen die niet kunnen worden geconverteerd, uitsluiten
+    NULL # Exclude columns that cannot be converted
   }
 })
 
-# Stap 3: Combineer kolommen met dezelfde naam door ze samen te voegen
+# Step 3: Combine columns with the same name by merging them together
 genera_counts_combined <- as.data.frame(sapply(unique(names(genera_counts_numeric)), function(col) {
   if (col %in% names(genera_counts_numeric)) {
     rowSums(genera_counts_numeric[names(genera_counts_numeric) == col], na.rm = TRUE)
@@ -471,24 +466,31 @@ genera_counts_combined <- as.data.frame(sapply(unique(names(genera_counts_numeri
   }
 }))
 
-# Stap 4: Voeg de "Sample"-kolom terug toe aan de samengevoegde dataset
+# Step 4: Add the ‘Sample’ column back to the merged dataset
 genera_counts_combined$Sample <- genera_counts$Sample
 
-# Stap 5: Verplaats de "Sample"-kolom naar de eerste positie (optioneel)
+# Step 5: Move the ‘Sample’ column to the first position
 genera_counts_combined <- genera_counts_combined[, c("Sample", setdiff(names(genera_counts_combined), "Sample"))]
 
-# Stap 6: Controleer het resultaat
+# Step 6: Check the result
 print(genera_counts_combined)
 ```
-Append the 'Study.Group' column from dataset 'metadata' to the 'genera_counts_combined' dataset.
+Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
 
-```
+```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
-Append the 'Subject' column from dataset 'metadata' to the 'genera_counts_combined' dataset.
+Append the 'Subject' column to the 'genera_counts_combined' dataset.
 
-
+```{r}
+genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
+
+
+
+
+
+
 The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
 
 Check for possible outliers
