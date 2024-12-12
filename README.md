@@ -352,6 +352,7 @@ The output provides the effect size (η²) of the Kruskal-Wallis test. A value o
 The effect size indicates that the group classification ("IBD" vs "non-IBD") significantly contributes to the variation in fecal calprotectin levels, further supporting the utility of fecal calprotectin as a biomarker for distinguishing between these two groups.
 
 ---------------------------------------------------------------------------------------
+
 # Research question 2 (multivariate analysis): Are bacterial classes associated with Non-IBD, Ulcerative Colitis (UC), and Crohn's Disease (CD) in terms of microbiome composition?
 
 **Null hypothesis:** There is no significant difference in bacterial composition between the three study groups (class CD, UC and non-IBD).
@@ -518,10 +519,12 @@ cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subjec
 
 
 
-##visualisation
+###visualisation
+
 _nog alles komen van correlatiematrix_
 
 ##PCA:
+
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
 bacteria_data <- genera_counts_combined_clean %>%
