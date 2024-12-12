@@ -532,28 +532,28 @@ This ensures that zeros are not mistakenly treated as valid values during the co
 
 
 ```{r}
-# Vervang alle 0-waarden door NaN in numerieke kolommen
+# Replace all 0 values with NaN in numeric columns
 genera_counts_combined_clean <- genera_counts_combined_clean %>%
-  mutate(across(where(is.numeric), ~ replace(., . == 0, NaN)))
+  mutate(across(where(is.numeric), ~ replace(., . == 0, Na)))
 
-# Bekijk de aangepaste dataset
+# View the adjusted dataset
 print(genera_counts_combined_clean)
 
-# Controleer het aantal NaN-waarden in de dataset
-cat("Aantal NaN-waarden in de dataset:", sum(is.nan(as.matrix(genera_counts_combined_clean))), "\n")
+# Check the number of Na values in the dataset
+cat("Amount of Na values in the dataset:", sum(is.na(as.matrix(genera_counts_combined_clean))), "\n")
 ```
 
-Gevisualiseerd: 
+Visualize the correlation matrix:
 ```{r}
 install.packages('ggcorrplot')
 
 library(ggcorrplot)
 
-# Selecteer alleen numerieke variabelen
+# Select only numeric variables
 numeric_vars <- sapply(genera_counts_combined_clean, is.numeric)
 correlation_matrix <- cor(genera_counts_combined_clean[, numeric_vars], use = "pairwise.complete.obs")
 
-# Visualiseer de correlatiematrix
+# Visualising the correlation matrix
 ggcorrplot(correlation_matrix, 
            lab = FALSE, 
            title = "Correlation Matrix", 
