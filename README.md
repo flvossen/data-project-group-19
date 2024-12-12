@@ -485,12 +485,32 @@ Append the 'Subject' column to the 'genera_counts_combined' dataset.
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
+###visualisation
+_nog alles komen van correlatiematrix_
 
+###PCA:
+```{r}
+# Step 1: Perform the PCA on the numeric columns
+bacteria_data <- genera_counts_combined_clean %>%
+  select(-c(Subject, Study.Group))  # Remove the non-numeric columns
 
+# Run PCA
+pca_result <- prcomp(bacteria_data)
 
+# Step 2: Extract the first two components for visualisation
+pca_data <- as.data.frame(pca_result$x)
+pca_data$Study.Group <- genera_counts_combined_clean$Study.Group
 
+# Step 3: Visualise PCA with ggplot2
+library(ggplot2)
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Study.Group)) +
+  geom_point(size = 3) +
+  labs(title = "PCA of bacterial distribution",
+       x = "Principal Component 1",
+       y = "Principal Component 2") +
+  theme_minimal()
 
-
+```
 The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
 
 Check for possible outliers
