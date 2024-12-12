@@ -518,10 +518,10 @@ cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subjec
 
 
 
-###visualisation
+##visualisation
 _nog alles komen van correlatiematrix_
 
-###PCA:
+##PCA:
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
 bacteria_data <- genera_counts_combined_clean %>%
@@ -564,7 +564,7 @@ plot(pca_scores, col = ifelse(mahalanobis_pca > threshold_pca, "red", "black"))
 ```
 We have decided to retain the outliers. Retaining outliers in PCA allows for capturing important, rare variations and reflecting the true complexity and diversity of real-world data, ensuring that meaningful patterns and extreme but legitimate variations are not lost.
 
-We used a scree plot to identify the optimal number of principal components to retain by showing the variance explained by each component and highlighting the point where additional components contribute less.
+We used a screeplot to identify the optimal number of principal components to retain by showing the variance explained by each component and highlighting the point where additional components contribute less.
 ```{r}
 screeplot (pca_result, type='lines',main="PC Variance by PC # (Screeplot) ")
 abline (h=mean ( (pca_result$sdev)^2), col= 'gray' , lty=2)
