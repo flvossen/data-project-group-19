@@ -79,6 +79,7 @@ extract_class_from_column_name <- function(column_name) {
   return(NA)  # No match found
 }
 
+# Obtain a vector of classes for each column
 classes <- sapply(column_names, extract_class_from_column_name)
 
 unique_classes <- unique(classes)
@@ -93,7 +94,7 @@ Now we are going to replace all bacterial column names with the bacterial class 
  
 ```{r}
 # Function to rename column names
-rename_columns_no_index <- function(column_names, classes) {
+rename_columns <- function(column_names, classes) {
   new_column_names <- character(length(column_names))
   
   # Loop over the column names
@@ -111,8 +112,8 @@ rename_columns_no_index <- function(column_names, classes) {
   return(new_column_names)
 }
 
-# Apply function to rename column names without indexes
-new_column_names <- rename_columns_no_index(column_names, classes)
+# Apply function to rename column names
+new_column_names <- rename_columns(column_names, classes)
 
 # Rename the columns in the dataset
 colnames(genera_counts) <- new_column_names
@@ -123,7 +124,13 @@ head(genera_counts)
 ```	
 Samples column is currently labeled as 'Unknown'. Check if any other column is labeled as 'Unknown' as well.
 
-_hier nog code plaken._
+```{r}
+# Count how many times ‘Unknown’ appears in the column names
+unknown_count <- sum(colnames(genera_counts) == "Unknown")
+
+# Print the result
+cat("Amount 'Unknown' columns:", unknown_count, "\n")
+```
 
 Now, merge the columns with the same name. Additionally, rename the 'Unknown' column back to 'Samples'.
 ```{r}
@@ -171,6 +178,62 @@ Append the 'Subject' column to the 'genera_counts_combined' dataset.
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
+Check the number of duplicate subjects.
+```{r}
+# Check for duplicate values in the ‘Subject’ column
+duplicated_subjects <- genera_counts_combined[duplicated(genera_counts_combined$Subject), ]
+
+# Print the number of duplicate values
+cat("Amount of duplicated subjects:", nrow(duplicated_subjects), "\n")
+
+# View duplicate values
+print(duplicated_subjects)
+```
+Now take the average of the double subjects.
+```{r}
+# Calculate the average for Subject and retain Study.Group
+genera_counts_combined_clean <- genera_counts_combined %>%
+  group_by(Subject) %>%
+  summarise(
+    Study.Group = first(Study.Group), 
+    across(where(is.numeric), mean, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# View the resulting dataset
+print(genera_counts_combined_clean)
+
+# Check the number of unique subjects
+cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subject), "\n")
+```
+###visualisatie:
+
+_Nog alles van plakken, das die correlatie matrix._
+
+###PCA:
+```{r}
+# Stap 1: Voer de PCA uit op de numerieke kolommen
+bacteria_data <- genera_counts_combined_clean %>%
+  select(-c(Subject, Study.Group))  # Verwijder de niet-numerieke kolommen
+
+# PCA uitvoeren
+pca_result <- prcomp(bacteria_data)
+
+# Stap 2: Extracteer de eerste twee componenten voor visualisatie
+pca_data <- as.data.frame(pca_result$x)
+pca_data$Study.Group <- genera_counts_combined_clean$Study.Group
+
+# Stap 3: Visualiseer PCA met ggplot2
+library(ggplot2)
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Study.Group)) +
+  geom_point(size = 3) +
+  labs(title = "PCA van bacteriële verdeling",
+       x = "Principale Component 1",
+       y = "Principale Component 2") +
+  theme_minimal()
+
+```
+
 
 
 # Machine learning:
