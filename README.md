@@ -488,31 +488,31 @@ genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "
 
 Check the number of duplicate subjects.
 ```{r}
-# Controleer op dubbele waarden in de kolom 'Subject'
+# Check for duplicate values in the ‘Subject’ column
 duplicated_subjects <- genera_counts_combined[duplicated(genera_counts_combined$Subject), ]
 
-# Print het aantal dubbele waarden
-cat("Aantal dubbele subjects:", nrow(duplicated_subjects), "\n")
+# Print the number of duplicate values
+cat("Amount of duplicate subjects:", nrow(duplicated_subjects), "\n")
 
-# Bekijk de dubbele waarden
+# View duplicate values
 print(duplicated_subjects)
 ```
 Now take the average of the double subjects.
 ```{r}
-# Bereken het gemiddelde voor Subjects en behoud Study.Group
+# Calculate the average for Subjects and retain Study.Group
 genera_counts_combined_clean <- genera_counts_combined %>%
   group_by(Subject) %>%
   summarise(
-    Study.Group = first(Study.Group),  # Behoud de eerste (of meest voorkomende) waarde van Study.Group
+    Study.Group = first(Study.Group), 
     across(where(is.numeric), mean, na.rm = TRUE),
     .groups = "drop"
   )
 
-# Bekijk de resulterende dataset
+# View the resulting dataset
 print(genera_counts_combined_clean)
 
-# Controleer het aantal unieke subjects
-cat("Aantal unieke subjects:", n_distinct(genera_counts_combined_clean$Subject), "\n")
+# Check the number of unique subjects
+cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subject), "\n")
 ```
 
 
