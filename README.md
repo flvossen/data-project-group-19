@@ -3,6 +3,7 @@
 # Research question 1 (univariate analysis): 
 
 **Null hypothesis:**
+
 **Alternative hypothesis:**
 
 
