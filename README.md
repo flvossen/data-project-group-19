@@ -519,11 +519,11 @@ cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subjec
 
 
 
-###visualisation
+### visualisation
 
 _nog alles komen van correlatiematrix_
 
-##PCA:
+## PCA:
 
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
@@ -549,7 +549,7 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = Study.Group)) +
 ```
 The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
 
-Check for possible outliers
+Check for possible outliers:
 ```{r}
 # Calculate Mahalanobis distance in head space
 pca_scores <- pca_result$x[, 1:2]  # The first two main components
@@ -584,6 +584,62 @@ pca_loadings <- as.data.frame(pca_result$rotation)
 most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
 ```
 From this, we can identify which classes play the most significant role and use them to examine whether these differ across study groups. 
+
+```{r}
+# PCA loadings as a data frame
+pca_loadings <- as.data.frame(pca_result$rotation)
+
+# Find the top 5 most influential features for each PC
+top_influential_classes <- lapply(names(pca_loadings), function(pc) {
+  # Extract the current PC's loadings
+  current_pc <- pca_loadings[[pc]]
+  
+  # Find the indices of the top 5 absolute loadings
+  top_indices <- order(abs(current_pc), decreasing = TRUE)[1:5]
+  
+  # Return the feature names and their loadings
+  data.frame(Feature = rownames(pca_loadings)[top_indices],
+             Loading = current_pc[top_indices],
+             PC = pc)
+})
+
+# Combine results into a single data frame
+top_influential_classes <- do.call(rbind, top_influential_classes)
+
+# View the result
+print(top_influential_classes)
+```
+Our bacterial classes we will look at are; Clostridia, Bacteroidia, gammaproteobacteria, negativicutes, and bacilli.
+
+Histograms for Bacterial Classes per Study Group:
+```{r}
+# Lijst van bacterieklassen
+bacterial_classes <- c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")
+
+# Voor elke bacterieklasse, maak histogrammen per Study.Group
+for (class in bacterial_classes) {
+  plot <- ggplot(genera_counts_combined_clean, aes_string(x = class, fill = "Study.Group")) +
+    geom_histogram(bins = 30, alpha = 0.7, position = "dodge", color = "black") +
+    facet_wrap(~Study.Group, scales = "free") +  # Zet facetten per Study.Group
+    labs(
+      title = paste("Histogram van", class, "per Study Group"),
+      x = class,
+      y = "Frequentie"
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5))  # Titel gecentreerd
+  print(plot)
+}
+```
+ 
+
+```{r}
+# Shapiro-Wilk test for each bacterial class
+shapiro_results <- sapply(genera_counts_combined_clean[bacterial_classes], function(x) shapiro.test(x)$p.value)
+
+# Display results
+shapiro_results
+```
 
 
 
