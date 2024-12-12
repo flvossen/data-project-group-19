@@ -369,9 +369,9 @@ Needed libraries
 ```{r}
 # Install the package by removing #, if not already installed
 # install.packages("tidyverse")
-# install.package("ggplot2")
-# install.package("vegan")
-# install.package("ggcorrplot")
+# install.packages("ggplot2")
+# install.packages("vegan")
+# install.packages("ggcorrplot")
 # install.packages("dplyr")
 
 library(tidyverse)
@@ -554,21 +554,21 @@ This ensures that zeros are not mistakenly treated as valid values during the co
 
 ```{r}
 # Replace all 0 values with NaN in numeric columns
-genera_counts_combined_clean <- genera_counts_combined_clean %>%
+genera_counts_combined_clean_withNan <- genera_counts_combined_clean %>%
   mutate(across(where(is.numeric), ~ replace(., . == 0, NaN)))
 
 # View the modified dataset
-print(genera_counts_combined_clean)
+print(genera_counts_combined_clean_withNan)
 
 # Check the number of NaN values in the dataset
-cat("Number of NaN values in the dataset:", sum(is.nan(as.matrix(genera_counts_combined_clean))), "\n")
+cat("Number of NaN values in the dataset:", sum(is.nan(as.matrix(genera_counts_combined_clean_withNan))), "\n")
 ```
 
 Visualize the correlation matrix:
 ```{r}
 # Select only numeric variables
-numeric_vars <- sapply(genera_counts_combined_clean, is.numeric)
-correlation_matrix <- cor(genera_counts_combined_clean[, numeric_vars], use = "pairwise.complete.obs")
+numeric_vars <- sapply(genera_counts_combined_clean_withNAn, is.numeric)
+correlation_matrix <- cor(genera_counts_combined_clean_withNan[, numeric_vars], use = "pairwise.complete.obs")
 
 # Visualising the correlation matrix
 ggcorrplot(correlation_matrix, 
