@@ -1,10 +1,50 @@
 # data-project-group-19
 
-# Research question 1 (univariate analysis): 
+# Research question 1 (univariate analysis): Can calprotectin levels be used as a diagnostic biomarker to differentiate between non-IBD, ulcerative colitis (UC), and Crohn's disease (CD) in patients?
 
-**Null hypothesis:**
+**Null hypothesis:** There is no significant difference in fecal calprotectin levels between patients with CD (Crohn's Disease), UC (Ulcerative Colitis), and non-IBD (individuals without inflammatory bowel diseases).
 
-**Alternative hypothesis:**
+**Alternative hypothesis:** There is a significant difference in fecal calprotectin levels between patients with CD (Crohn's Disease), UC (Ulcerative Colitis), and non-IBD (individuals without inflammatory bowel diseases).
+
+## Data preprocessing:
+
+Read data:
+```{r}
+metadata <- read_tsv('metadata.tsv')
+```
+
+Do we have missing values, and if so, in which columns?
+```{r}
+sum(is.na(metadata))
+colnames(metadata)[colSums(is.na(metadata))>0]
+```
+We have 749 missing values in the next columns: 'consent_age','Age at diagnosis', 'fecalcal', 'BMI_at_baseline', Height_at_baseline', 'Weight_at_baseline' and 'smoking status'.
+
+Amount of missing values for each column:
+```{r}
+col_na_count <- colSums(is.na(metadata))
+barplot(col_na_count, main = "Amount of missing values for each column", col = "lightblue", names.arg = colnames(metadata), las = 2, cex.names = 0.5)
+```
+
+_hoe hebben we deze NA's gezien en waarom enkel in fecalcal verwijderen?._
+Fecal calprotectin contains NA values, we will remove them.
+```{r}
+clean_data1 <- metadata %>% filter(!is.na(fecalcal)) 
+print(clean_data1) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16,7 +56,16 @@
 
 ## Data preprocessing:
 
-We first need to know what the different bacterial classes are.
+Read data
+```{r}
+genera_counts <- read_tsv('genera.counts.tsv')
+```
+
+Do we have missing values, and if so, in which columns?
+```{r}
+sum(is.na(genera_counts))
+```
+We don't have missing data values. Now we need to know what the different bacterial classes are.
 
 ```{r}
 column_names <- colnames(genera_counts)
@@ -42,7 +91,7 @@ In this, we see that we have 275 unique classes (the first class of output is co
 
 Now we are going to replace all bacterial column names with the bacterial class name:
  
-```{r}
+```
 column_names <- colnames(genera_counts)
 
 # Functie om de klasse te extraheren uit de kolomnaam
@@ -98,7 +147,7 @@ Sample is currently labeled as 'unknown'. Check if any other column is labeled a
 _hier nog code plaken._
 
 Now, merge the columns with the same name. Additionally, rename the 'unknown' column back to 'samples'.
-```{r}
+```
 # Stap 1: Houd "Unknown" ongemoeid en hernoem naar "Sample"
 genera_counts$Sample <- genera_counts$Unknown
 genera_counts <- genera_counts[, names(genera_counts) != "Unknown"]
@@ -135,12 +184,12 @@ print(genera_counts_combined)
 ```
 Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
 
-```{r}
+```
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
 Append the 'Subject' column to the 'genera_counts_combined' dataset.
 
-```{r}
+```
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
 
