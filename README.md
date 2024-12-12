@@ -439,7 +439,7 @@ unknown_count <- sum(colnames(genera_counts) == "Unknown")
 cat("Aantal 'Unknown' kolommen:", unknown_count, "\n")
 ```
 
-Now, merge the columns with the same name. Only the column 'Sample' was named 'Unknown'. So, rename the 'Unknown' column back to 'Samples'.
+Now, merge the columns with the same name. Only the column 'Sample' was named 'Unknown'. So, rename the 'Unknown' column back to 'Sample'.
 ```{r}
 # Step 1: Keep ‘Unknown’ untouched and rename to ‘Sample’
 genera_counts$Sample <- genera_counts$Unknown
@@ -475,16 +475,49 @@ genera_counts_combined <- genera_counts_combined[, c("Sample", setdiff(names(gen
 # Step 6: Check the result
 print(genera_counts_combined)
 ```
-Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
+Append the 'Study.Group' column from the dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
-Append the 'Subject' column to the 'genera_counts_combined' dataset.
+Append the 'Subject' column from the dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
+
+Check the number of duplicate subjects.
+```{r}
+# Controleer op dubbele waarden in de kolom 'Subject'
+duplicated_subjects <- genera_counts_combined[duplicated(genera_counts_combined$Subject), ]
+
+# Print het aantal dubbele waarden
+cat("Aantal dubbele subjects:", nrow(duplicated_subjects), "\n")
+
+# Bekijk de dubbele waarden
+print(duplicated_subjects)
+```
+Now take the average of the double subjects.
+```{r}
+# Bereken het gemiddelde voor Subjects en behoud Study.Group
+genera_counts_combined_clean <- genera_counts_combined %>%
+  group_by(Subject) %>%
+  summarise(
+    Study.Group = first(Study.Group),  # Behoud de eerste (of meest voorkomende) waarde van Study.Group
+    across(where(is.numeric), mean, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Bekijk de resulterende dataset
+print(genera_counts_combined_clean)
+
+# Controleer het aantal unieke subjects
+cat("Aantal unieke subjects:", n_distinct(genera_counts_combined_clean$Subject), "\n")
+```
+
+
+
+
 ###visualisation
 _nog alles komen van correlatiematrix_
 
