@@ -615,7 +615,7 @@ print(top_influential_classes)
 ```
 The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
 
-#### Descriptive Statistics for the top 5 bacterial classes:
+#### Descriptive Statistics:
 
 Calculating the mean, median, and standard deviation:
 ```{r}
@@ -637,7 +637,7 @@ print(mean_median_sd)
 ```
 _nog iets typen over the mean, median and sd._
 
-
+#### Normality Testing:
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
 ```{r}
 # List of bacteria classes
