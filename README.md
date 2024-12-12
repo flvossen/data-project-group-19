@@ -41,7 +41,7 @@ In this, we see that we have 275 unique classes (the first class of output is co
 
 Now we are going to replace all bacterial column names with the bacterial class name:
  
-```
+```{r}
 column_names <- colnames(genera_counts)
 
 # Functie om de klasse te extraheren uit de kolomnaam
@@ -97,7 +97,7 @@ Sample is currently labeled as 'unknown'. Check if any other column is labeled a
 _hier nog code plaken._
 
 Now, merge the columns with the same name. Additionally, rename the 'unknown' column back to 'samples'.
-```
+```{r}
 # Stap 1: Houd "Unknown" ongemoeid en hernoem naar "Sample"
 genera_counts$Sample <- genera_counts$Unknown
 genera_counts <- genera_counts[, names(genera_counts) != "Unknown"]
@@ -134,12 +134,12 @@ print(genera_counts_combined)
 ```
 Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
 
-```
+```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
 Append the 'Subject' column to the 'genera_counts_combined' dataset.
 
-```
+```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
 
