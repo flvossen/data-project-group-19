@@ -92,6 +92,57 @@ colnames(genera_counts) <- new_column_names
 print(colnames(genera_counts))
 head(genera_counts)
 ```	
+Sample is currently labeled as 'unknown'. Check if any other column is labeled as 'unknown' as well.
+
+_hier nog code plaken._
+
+Now, merge the columns with the same name. Additionally, rename the 'unknown' column back to 'samples'.
+```
+# Stap 1: Houd "Unknown" ongemoeid en hernoem naar "Sample"
+genera_counts$Sample <- genera_counts$Unknown
+genera_counts <- genera_counts[, names(genera_counts) != "Unknown"]
+
+# Stap 2: Controleer en converteer alleen kolommen die numeriek zijn
+genera_counts_numeric <- genera_counts
+genera_counts_numeric[] <- lapply(genera_counts_numeric, function(col) {
+  if (is.numeric(col)) {
+    col # Als de kolom al numeriek is, laat deze ongemoeid
+  } else if (is.factor(col) || is.character(col)) {
+    suppressWarnings(as.numeric(col)) # Probeer tekst/factor om te zetten naar numeriek
+  } else {
+    NULL # Kolommen die niet kunnen worden geconverteerd, uitsluiten
+  }
+})
+
+# Stap 3: Combineer kolommen met dezelfde naam door ze samen te voegen
+genera_counts_combined <- as.data.frame(sapply(unique(names(genera_counts_numeric)), function(col) {
+  if (col %in% names(genera_counts_numeric)) {
+    rowSums(genera_counts_numeric[names(genera_counts_numeric) == col], na.rm = TRUE)
+  } else {
+    NULL
+  }
+}))
+
+# Stap 4: Voeg de "Sample"-kolom terug toe aan de samengevoegde dataset
+genera_counts_combined$Sample <- genera_counts$Sample
+
+# Stap 5: Verplaats de "Sample"-kolom naar de eerste positie (optioneel)
+genera_counts_combined <- genera_counts_combined[, c("Sample", setdiff(names(genera_counts_combined), "Sample"))]
+
+# Stap 6: Controleer het resultaat
+print(genera_counts_combined)
+```
+Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
+
+```
+genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
+```
+Append the 'Subject' column to the 'genera_counts_combined' dataset.
+
+```
+genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
+```
+
 
 # Machine learning:
 
