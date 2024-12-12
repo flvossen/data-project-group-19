@@ -132,7 +132,7 @@ unknown_count <- sum(colnames(genera_counts) == "Unknown")
 cat("Amount 'Unknown' columns:", unknown_count, "\n")
 ```
 
-Now, merge the columns with the same name. Additionally, rename the 'Unknown' column back to 'Samples'.
+Now, merge the columns with the same name. Only column named 'Unknown' is the Sample column. Additionally, rename the 'Unknown' column back to 'Sample'.
 ```{r}
 # Step 1: Keep ‘Unknown’ untouched and rename to ‘Sample’
 genera_counts$Sample <- genera_counts$Unknown
@@ -168,12 +168,12 @@ genera_counts_combined <- genera_counts_combined[, c("Sample", setdiff(names(gen
 # Step 6: Check the result
 print(genera_counts_combined)
 ```
-Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
+Append the 'Study.Group' column from dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
-Append the 'Subject' column to the 'genera_counts_combined' dataset.
+Append the 'Subject' column from dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
@@ -184,7 +184,7 @@ Check the number of duplicate subjects.
 duplicated_subjects <- genera_counts_combined[duplicated(genera_counts_combined$Subject), ]
 
 # Print the number of duplicate values
-cat("Amount of duplicated subjects:", nrow(duplicated_subjects), "\n")
+cat("Amount of duplicate subjects:", nrow(duplicated_subjects), "\n")
 
 # View duplicate values
 print(duplicated_subjects)
@@ -212,18 +212,18 @@ _Nog alles van plakken, das die correlatie matrix._
 
 ###PCA:
 ```{r}
-# Stap 1: Voer de PCA uit op de numerieke kolommen
+# Step 1: Perform the PCA on the numeric columns
 bacteria_data <- genera_counts_combined_clean %>%
-  select(-c(Subject, Study.Group))  # Verwijder de niet-numerieke kolommen
+  select(-c(Subject, Study.Group))  # Remove the non-numeric columns
 
-# PCA uitvoeren
+# Run PCA
 pca_result <- prcomp(bacteria_data)
 
-# Stap 2: Extracteer de eerste twee componenten voor visualisatie
+# Step 2: Extract the first two components for visualisation
 pca_data <- as.data.frame(pca_result$x)
 pca_data$Study.Group <- genera_counts_combined_clean$Study.Group
 
-# Stap 3: Visualiseer PCA met ggplot2
+# Step 3: Visualise PCA with ggplot2
 library(ggplot2)
 ggplot(pca_data, aes(x = PC1, y = PC2, color = Study.Group)) +
   geom_point(size = 3) +
@@ -233,6 +233,44 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = Study.Group)) +
   theme_minimal()
 
 ```
+The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
+
+Check for possible outliers
+```{r}
+# Calculate Mahalanobis distance in head space
+pca_scores <- pca_result$x[, 1:2]  # The first two main components
+mahalanobis_pca <- mahalanobis(pca_scores, colMeans(pca_scores), cov(pca_scores))
+
+# Add the distance to your data frame
+genera_counts_combined_clean$mahalanobis_pca <- mahalanobis_pca
+
+# Threshold for identifying outliers
+threshold_pca <- qchisq(0.95, df = 2)  # 95% threshold, 2 dimensions
+outliers_pca <- which(mahalanobis_pca > threshold_pca)
+
+# Visualise the outliers
+plot(pca_scores, col = ifelse(mahalanobis_pca > threshold_pca, "red", "black"))
+```
+We have decided to retain the outliers. Retaining outliers in PCA allows for capturing important, rare variations and reflecting the true complexity and diversity of real-world data, ensuring that meaningful patterns and extreme but legitimate variations are not lost.
+
+We used a scree plot to identify the optimal number of principal components to retain by showing the variance explained by each component and highlighting the point where additional components contribute less.
+```{r}
+screeplot (pca_result, type='lines',main="PC Variance by PC # (Screeplot) ")
+abline (h=mean ( (pca_result$sdev)^2), col= 'gray' , lty=2)
+legend ("right", "Mean Variance" ,lty=2, col='gray',bty='n')
+cumulative_variance <- cumsum(pca_result$sdev^2 / sum(pca_result$sdev^2))
+num_pcs <- which(cumulative_variance >= 0.9)[1]  # First PC to explain ≥90%
+print(num_pcs)
+```
+Look for the "elbow point," where the additional variance explained by subsequent principal components becomes minimal, and select the components that together explain more than 90% of the total variance, here PC2.
+
+```{r}
+# Example: Extract loadings for the principal components
+pca_loadings <- as.data.frame(pca_result$rotation)
+most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
+```
+From this, we can identify which classes play the most significant role and use them to examine whether these differ across study groups. 
+
 
 
 
