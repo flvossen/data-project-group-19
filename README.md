@@ -1,12 +1,14 @@
 # PG19-group-project-MICROBIOME
 
-# Research question 1 (univariate analysis): Can calprotectin levels be used as a diagnostic biomarker to differentiate between non-IBD, ulcerative colitis (UC), and Crohn's disease (CD) in patients?
+# Research question 1 (univariate analysis): 
+
+## Can calprotectin levels be used as a diagnostic biomarker to differentiate between non-IBD, ulcerative colitis (UC), and Crohn's disease (CD) in patients?
 
 **Null hypothesis:** There is no significant difference in fecal calprotectin levels between patients with CD (Crohn's Disease), UC (Ulcerative Colitis), and non-IBD (individuals without inflammatory bowel diseases).
 
 **Alternative hypothesis:** There is a significant difference in fecal calprotectin levels between patients with CD (Crohn's Disease), UC (Ulcerative Colitis), and non-IBD (individuals without inflammatory bowel diseases).
 
-## Data preparation:
+### Data preparation:
 
 Read data:
 ```{r}
@@ -73,7 +75,7 @@ chisq_result <- chisq.test(chisq_test_data[,-1])  #Disregard the Study.Group col
 print(chisq_result) 
 ```
 
-### Interpretation: 
+#### Interpretation: 
 Based on the p-value (0.8778), we cannot reject the null hypothesis (H₀). This means that there is no evidence of a significant difference in the number of missing values (NAs) between the different study groups (CD, UC, non-IBD).
 
 The missing values appear to be randomly distributed across the study groups. Therefore, in this case, you can assume that the missing data is likely missing completely at random (MCAR), meaning that the distribution of NAs does not show any systematic pattern and does not introduce bias into your analysis.
@@ -111,7 +113,7 @@ print(duplicated_subjects1)
 ```
 _again, waarom staat er in de code hierboven een komma voor ]?_
 
-## Descriptive statistics:
+### Descriptive statistics:
 _is deze tussentitel een goede vertaling voor 'Beschrijvende statistieken?_
 Calculates the descriptive statistics (mean, median, SD, min, max) of fecalcal_mean per Study.Group.
 ```{r} 
@@ -127,7 +129,7 @@ desc_stats <- metadata_clean %>%
 print(desc_stats) 
 ```
 
-### Interpretation:
+#### Interpretation:
 We observe that the difference in the average values between CD and UC is relatively small. However, there is a much larger difference in the averages between both CD and non-IBD, as well as UC and non-IBD. Additionally, the minimum values across the study groups are very similar. In contrast, the maximum values are more spread out, except for between UC and CD. Notably, the maximum value for non-IBD is close to the median values of both UC and CD
 
 Visualisation of the constribution:
@@ -190,7 +192,7 @@ ggplot(clean_data_unique, aes(x = fecalcal_mean, fill = Study.Group)) +
   theme_minimal()
 ```
 
-### Interpretation:
+#### Interpretation:
 We have added 5 new variables to the clean_data_unique dataset:
 - Q1: The first quartile (25th percentile).
 - Q3: The third quartile (75th percentile).
@@ -207,12 +209,12 @@ library(coin)
 kruskal.test(fecalcal_mean ~ Study.Group, data = clean_data_unique) 
 ``` 
 
-### Interpretation:
+#### Interpretation:
 There is a significant difference in fecal calprotectine levels across the three different study groups, with a standard asymptotic p-value of 0.0001005. We will now first calculate the exact p-value and then examine which specific groups differ using the Wilcoxon test as a post hoc analysis.
 
 While the standard asymptotic p-value may not be optimal with a small number of observations, we have 77 observations in this case, making the p-value reliable. Therefore, we will proceed with calculating the exact p-value.
 
-### Conclusion:
+#### Conclusion:
 We can conclude that there is an extremely significant difference (p = 0.0001005) in the distribution of calprotectin concentration due to the three study groups.
 
 Post-hoc analysis will be conducted using the pairwise Wilcoxon test to examine the differences between the groups.
@@ -224,10 +226,10 @@ pairwise_wilcox <- pairwise.wilcox.test(
 ) 
 print(pairwise_wilcox) 
 ``` 
-### Interpretation:
+#### Interpretation:
 The output displays the p-values from pairwise comparisons in a matrix format, with a Bonferroni correction applied for multiple testing. The results indicate that both CD and UC show significant differences in fecal calprotectin levels compared to non-IBD (p = 0.00014 and p = 0.00027, respectively). However, there is no significant difference in fecal calprotectin levels between CD and UC (p = 1.0000), meaning that fecal calprotectin cannot be used to distinguish between these two groups.
 
-### Conclusion:
+#### Conclusion:
 Fecal calprotectin can effectively differentiate non-IBD from both UC and CD, but it is not a reliable marker to distinguish between CD and UC.
 
 Creating a boxplot using ggboxplot, with Wilcoxon p-values added to show statistical significance.
@@ -257,7 +259,7 @@ ggboxplot(
   )
 ``` 
 
-### Interpretation: 
+#### Interpretation: 
 Since UC and CD do not show a significant difference in fecal calprotectine levels, they can be grouped together as IBD (Inflammatory Bowel Disease) and compared to non-IBD. This allows for a broader comparison between IBD and non-IBD based on fecalcal levels."
 
 ```{r} 
@@ -281,7 +283,7 @@ kruskal_combined <- kruskal.test(fecalcal_mean ~ Group_Combined, data = clean_da
 print(kruskal_combined) 
 ```
 
-### Interpretation:
+#### Interpretation:
 The comparison between the non-IBD and IBD groups is statistically significant (p = 1.79e-5 < 0.05), suggesting that fecal calprotectin levels can effectively distinguish between these groups.
 
 For the confidence intervals, it is preferable to use the median since our data is not normally distributed. The median is much more robust to outliers than the mean.
@@ -324,7 +326,7 @@ ci_results <- bootstrap_ci(
 print(ci_results)
 ```
 
-### Interpretation:
+#### Interpretation:
 The 95% confidence intervals (CIs) for the median fecal calprotectin levels in the IBD and non-IBD groups show distinct patterns. For the IBD group, the CI ranges from 41.48 µg/g to 147.69 µg/g, indicating that the median calprotectin level is significantly elevated, with some variability in the data. In contrast, the non-IBD group has a narrower CI, from 14.87 µg/g to 22.72 µg/g, suggesting a more consistent distribution and much lower median levels compared to the IBD group.
 
 Crucially, the non-overlapping CIs between these groups indicate a statistically significant difference in fecal calprotectin levels. This finding strongly supports the use of fecal calprotectin as a reliable biomarker to distinguish between individuals with IBD and those without. The elevated levels in the IBD group reflect underlying inflammation, further underscoring its diagnostic relevance.
@@ -345,21 +347,23 @@ eta_squared <- (H - k + 1) / (n - k)
 print(eta_squared)
 ```
 
-### Interpretation:
+#### Interpretation:
 The output provides the effect size (η²) of the Kruskal-Wallis test. A value of 0.229 (rounded) indicates that approximately 22.9% of the variance in calprotectin levels can be explained by the differences between the groups (IBD vs non-IBD). This suggests that the group classification has a notable impact on the variation observed in calprotectin levels.
 
-### Conclusion:
+#### Conclusion:
 The effect size indicates that the group classification ("IBD" vs "non-IBD") significantly contributes to the variation in fecal calprotectin levels, further supporting the utility of fecal calprotectin as a biomarker for distinguishing between these two groups.
 
 ---------------------------------------------------------------------------------------
 
-# Research question 2 (multivariate analysis): Are bacterial classes associated with Non-IBD, Ulcerative Colitis (UC), and Crohn's Disease (CD) in terms of microbiome composition?
+# Research question 2 (multivariate analysis): 
+
+## Are bacterial classes associated with Non-IBD, Ulcerative Colitis (UC), and Crohn's Disease (CD) in terms of microbiome composition?
 
 **Null hypothesis:** There is no significant difference in bacterial composition between the three study groups (class CD, UC and non-IBD).
 
 **Alternative hypothesis:** There is significant difference in bacterial composition between the three study groups (class CD, UC and non-IBD).
 
-## Data preparation:
+### Data preparation:
 
 Read data
 ```{r}
