@@ -352,7 +352,6 @@ The output provides the effect size (η²) of the Kruskal-Wallis test. A value o
 The effect size indicates that the group classification ("IBD" vs "non-IBD") significantly contributes to the variation in fecal calprotectin levels, further supporting the utility of fecal calprotectin as a biomarker for distinguishing between these two groups.
 
 ---------------------------------------------------------------------------------------
-
 # Research question 2 (multivariate analysis): Are bacterial classes associated with Non-IBD, Ulcerative Colitis (UC), and Crohn's Disease (CD) in terms of microbiome composition?
 
 **Null hypothesis:** There is no significant difference in bacterial composition between the three study groups (class CD, UC and non-IBD).
@@ -447,7 +446,7 @@ _hier nog code plaken._
 
 Now, merge the columns with the same name. Additionally, rename the 'unknown' column back to 'samples'.
 ```
-# Stap 1: Houd "Unknown" ongemoeid en hernoem naar "Sample"
+
 genera_counts$Sample <- genera_counts$Unknown
 genera_counts <- genera_counts[, names(genera_counts) != "Unknown"]
 
@@ -481,16 +480,53 @@ genera_counts_combined <- genera_counts_combined[, c("Sample", setdiff(names(gen
 # Stap 6: Controleer het resultaat
 print(genera_counts_combined)
 ```
-Append the 'Study.Group' column to the 'genera_counts_combined' dataset.
+Append the 'Study.Group' column from dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
-Append the 'Subject' column to the 'genera_counts_combined' dataset.
+Append the 'Subject' column from dataset 'metadata' to the 'genera_counts_combined' dataset.
+
 
 ```
-genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
+The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
+
+Check for possible outliers
+```{r}
+# Calculate Mahalanobis distance in head space
+pca_scores <- pca_result$x[, 1:2]  # The first two main components
+mahalanobis_pca <- mahalanobis(pca_scores, colMeans(pca_scores), cov(pca_scores))
+
+# Add the distance to your data frame
+genera_counts_combined_clean$mahalanobis_pca <- mahalanobis_pca
+
+# Threshold for identifying outliers
+threshold_pca <- qchisq(0.95, df = 2)  # 95% threshold, 2 dimensions
+outliers_pca <- which(mahalanobis_pca > threshold_pca)
+
+# Visualise the outliers
+plot(pca_scores, col = ifelse(mahalanobis_pca > threshold_pca, "red", "black"))
 ```
+We have decided to retain the outliers. Retaining outliers in PCA allows for capturing important, rare variations and reflecting the true complexity and diversity of real-world data, ensuring that meaningful patterns and extreme but legitimate variations are not lost.
+
+We used a scree plot to identify the optimal number of principal components to retain by showing the variance explained by each component and highlighting the point where additional components contribute less.
+```{r}
+screeplot (pca_result, type='lines',main="PC Variance by PC # (Screeplot) ")
+abline (h=mean ( (pca_result$sdev)^2), col= 'gray' , lty=2)
+legend ("right", "Mean Variance" ,lty=2, col='gray',bty='n')
+cumulative_variance <- cumsum(pca_result$sdev^2 / sum(pca_result$sdev^2))
+num_pcs <- which(cumulative_variance >= 0.9)[1]  # First PC to explain ≥90%
+print(num_pcs)
+```
+Look for the "elbow point," where the additional variance explained by subsequent principal components becomes minimal, and select the components that together explain more than 90% of the total variance, here PC2.
+
+```{r}
+# Example: Extract loadings for the principal components
+pca_loadings <- as.data.frame(pca_result$rotation)
+most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
+```
+From this, we can identify which classes play the most significant role and use them to examine whether these differ across study groups. 
+
 
 
 # Machine learning:
