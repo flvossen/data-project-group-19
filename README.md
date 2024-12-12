@@ -624,7 +624,7 @@ print(num_pcs)
 Look for the "elbow point," where the additional variance explained by subsequent principal components becomes minimal, and select the components that together explain more than 90% of the total variance, here PC2.
 
 ```{r}
-# Example: Extract loadings for the principal components
+# Extract loadings for the principal components
 pca_loadings <- as.data.frame(pca_result$rotation)
 most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
 ```
