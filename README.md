@@ -658,7 +658,7 @@ The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, N
 
 ### Descriptive Statistics:
 
-Calculating the mean, median, and standard deviation:
+Calculating the mean, median, and standard deviation for the top 5 bacterial classes:
 ```{r}
 # Include Study.Group in the bacteria_data subset
 bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli", "Study.Group")]
