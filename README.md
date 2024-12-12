@@ -524,11 +524,46 @@ cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subjec
 We now have 105 unique subjects.
 
 
-### visualisation
+### Correlation:
+
+Before performing a correlation matrix analysis, it's important to handle values that may distort the correlation calculations. Specifically, zeros in the dataset might represent missing data or irrelevant values, but they can skew the correlation results if treated as valid numerical values. Since correlation calculations cannot work correctly with zeros representing missing data, we can replace all zeros with NA (Not Available), which will exclude them from the correlation matrix.
+
+This ensures that zeros are not mistakenly treated as valid values during the correlation calculation, and the correlation matrix will be computed based only on the non-zero (and meaningful) data.
+
+
+```{r}
+# Vervang alle 0-waarden door NaN in numerieke kolommen
+genera_counts_combined_clean <- genera_counts_combined_clean %>%
+  mutate(across(where(is.numeric), ~ replace(., . == 0, NaN)))
+
+# Bekijk de aangepaste dataset
+print(genera_counts_combined_clean)
+
+# Controleer het aantal NaN-waarden in de dataset
+cat("Aantal NaN-waarden in de dataset:", sum(is.nan(as.matrix(genera_counts_combined_clean))), "\n")
+```
+
+Gevisualiseerd: 
+```{r}
+install.packages('ggcorrplot')
+
+library(ggcorrplot)
+
+# Selecteer alleen numerieke variabelen
+numeric_vars <- sapply(genera_counts_combined_clean, is.numeric)
+correlation_matrix <- cor(genera_counts_combined_clean[, numeric_vars], use = "pairwise.complete.obs")
+
+# Visualiseer de correlatiematrix
+ggcorrplot(correlation_matrix, 
+           lab = FALSE, 
+           title = "Correlation Matrix", 
+           outline.col = "white")
+```
+
 
 _nog alles komen van correlatiematrix_
 
-### Dimensionality Reduction::
+### Dimensionality Reduction:
 
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
