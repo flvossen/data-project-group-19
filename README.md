@@ -619,23 +619,22 @@ The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, N
 
 Calculating the mean, median, and standard deviation:
 ```{r}
-bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli")]
-study_group <- genera_counts_combined_clean$Study.Group
+# Include Study.Group in the bacteria_data subset
+bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli", "Study.Group")]
 
-# Bekijk een samenvatting van de dataset
-summary(bacteria_data)
-
-# Calculate mean, median and standard deviations per column by Study.Group
+# Calculate mean, median, and standard deviation per bacterial class grouped by Study.Group
 mean_median_sd <- bacteria_data %>%
   group_by(Study.Group) %>%
-  summarise(across(where(is.numeric), 
-                   list(mean = mean, median = median, sd = sd), 
-                   na.rm = TRUE))
+  summarise(across(
+    where(is.numeric),
+    list(mean = mean, median = median, sd = sd),
+    na.rm = TRUE
+  ))
 
-# Print the result
+# Print the results
 print(mean_median_sd)
 ```
-_nog iets typen over the mean, median and sd._
+_nog iets typen over de median, mean and sd._
 
 #### Normality Testing:
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
