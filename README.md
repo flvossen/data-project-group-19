@@ -502,6 +502,8 @@ cat("Amount of duplicate subjects:", nrow(duplicated_subjects), "\n")
 # View duplicate values
 print(duplicated_subjects)
 ```
+The dataset contains 277 duplicate subjects.
+
 Now take the average of the double subjects.
 ```{r}
 # Calculate the average for Subjects and retain Study.Group
@@ -519,15 +521,14 @@ print(genera_counts_combined_clean)
 # Check the number of unique subjects
 cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subject), "\n")
 ```
-
-
+We now have 105 unique subjects.
 
 
 ### visualisation
 
 _nog alles komen van correlatiematrix_
 
-### PCA:
+### Dimensionality Reduction::
 
 ```{r}
 # Step 1: Perform the PCA on the numeric columns
@@ -615,7 +616,7 @@ print(top_influential_classes)
 ```
 The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
 
-#### Descriptive Statistics:
+### Descriptive Statistics:
 
 Calculating the mean, median, and standard deviation:
 ```{r}
@@ -636,7 +637,7 @@ print(mean_median_sd)
 ```
 _nog iets typen over de median, mean and sd._
 
-#### Normality Testing:
+### Normality Testing:
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
 ```{r}
 # List of bacteria classes
@@ -665,7 +666,7 @@ shapiro_results
 ```
 If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be considered normally distributed; otherwise, a p-value below 0.05 indicates significant deviation from normality. In this case, only one value exceeds 0.05, suggesting that most of the data significantly deviate from a normal distribution.
 
-#### PERMANOVA:
+### PERMANOVA:
 ```{r}
 library(vegan)  # For adonis function
 
@@ -683,7 +684,7 @@ The F-statistic is 0.7408, , which measures the ratio of between-group variation
 
 The p-value is 0.52, which is greater than 0.05, indicating that there is no significant difference in the bacterial compositions between the study groups based on the Euclidean distance. 
 
-#### Conclusion:
+### Conclusion:
 The PERMANOVA results indicate that the null hypothesis cannot be rejected. This suggests:
 - No significant association exists between the bacterial composition and study groups (Non-IBD, UC, CD).
 - The small R² value highlights that only a tiny fraction of variance in bacterial composition is attributable to the study group factor.
