@@ -534,13 +534,13 @@ This ensures that zeros are not mistakenly treated as valid values during the co
 ```{r}
 # Replace all 0 values with NaN in numeric columns
 genera_counts_combined_clean <- genera_counts_combined_clean %>%
-  mutate(across(where(is.numeric), ~ replace(., . == 0, Na)))
+  mutate(across(where(is.numeric), ~ replace(., . == 0, NaN)))
 
-# View the adjusted dataset
+# View the modified dataset
 print(genera_counts_combined_clean)
 
-# Check the number of Na values in the dataset
-cat("Amount of Na values in the dataset:", sum(is.na(as.matrix(genera_counts_combined_clean))), "\n")
+# Check the number of NaN values in the dataset
+cat("Number of NaN values in the dataset:", sum(is.nan(as.matrix(genera_counts_combined_clean))), "\n")
 ```
 
 Visualize the correlation matrix:
@@ -561,7 +561,7 @@ ggcorrplot(correlation_matrix,
 ```
 
 
-_nog alles komen van correlatiematrix_
+_nog uitleg komen van correlatiematrix_
 
 ### Dimensionality Reduction:
 
