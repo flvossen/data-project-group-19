@@ -677,6 +677,7 @@ study_group <- genera_counts_combined_clean$Study.Group
 perm_result <- adonis2(bacteria_data ~ study_group , method = "euclidean", permutations = 999)
 print(perm_result)
 ```
+#### Interpretation PERMANOVA:
 R2 is the proportion of total variation explained by the study group factor is 0.01432. This means that only about 1.43% of the total variation in bacterial composition can be explained by the study group classification.
 
 The F-statistic is 0.7408, , which measures the ratio of between-group variation to within-group variation. A higher F-value suggests more separation between groups, but this value is relatively low here.
@@ -684,7 +685,9 @@ The F-statistic is 0.7408, , which measures the ratio of between-group variation
 The p-value is 0.52, which is greater than 0.05, indicating that there is no significant difference in the bacterial compositions between the study groups based on the Euclidean distance. 
 
 #### Conclusion:
-This suggests that the study groups (CD, UC, nonIBD) do not show a significant difference in terms of their bacterial composition after adjusting for all five bacterial classes considered. The null hypothesis cannot be rejected.
+The PERMANOVA results indicate that the null hypothesis cannot be rejected. This suggests:
+- No significant association exists between the bacterial composition and study groups (Non-IBD, UC, CD).
+- The small R² value highlights that only a tiny fraction of variance in bacterial composition is attributable to the study group factor.
 
 
 
