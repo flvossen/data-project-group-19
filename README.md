@@ -15,30 +15,29 @@ Read data:
 metadata <- read_tsv('metadata.tsv')
 ```
 
-Do we have missing values, and if so, in which columns?
+Are there missing values, and if so, in which columns?
 ```{r}
 sum(is.na(metadata))
 colnames(metadata)[colSums(is.na(metadata))>0]
 ```
 We have 749 missing values in the next columns: 'consent_age','Age at diagnosis', 'fecalcal', 'BMI_at_baseline', Height_at_baseline', 'Weight_at_baseline' and 'smoking status'.
 
-Amount of missing values for each column:
+Amount of missing values for each feature, each of which is displayed in a column:
 ```{r}
 col_na_count <- colSums(is.na(metadata))
-barplot(col_na_count, main = "Amount of missing values for each column", col = "lightblue", names.arg = colnames(metadata), las = 2, cex.names = 0.5)
+barplot(col_na_count, main = "Amount of missing values for each feature", col = "lightblue", names.arg = colnames(metadata), las = 2, cex.names = 0.5)
 ```
 
-_hoe hebben we deze NA's gezien en waarom enkel in fecalcal verwijderen?_
-Fecal calprotectin contains NA values, we will remove them.
+The fecal calprotectin data contains NA values, they'll be removed.
 ```{r}
-clean_data1 <- metadata %>% filter(!is.na(fecalcal)) 
-print(clean_data1) 
+clean_data <- metadata %>% filter(!is.na(fecalcal)) 
+print(clean_data) 
 ```
 Checking if all the NA values are removed.
 ```{r}
-sum(is.na(clean_data1$fecalcal)) 
+sum(is.na(clean_data$fecalcal)) 
 ```
-It is important to examine how the NA values are distributed across the three study groups. This helps to understand whether the missing data is randomly distributed or if there are systematic patterns. For example, if the NA values are concentrated in specific study groups, it may indicate issues in data collection or bias, which could impact the validity of further analyses
+It is important to examine how the NA values are distributed across the three study groups. This helps understanding whether the missing data is randomly distributed or if there are systematic patterns. For example, if the NA values are concentrated in specific study groups, it may indicate issues in data collection or bias, which could impact the validity of further analyses.
 ```{r} 
 na_distribution <- metadata %>% 
 group_by(Study.Group) %>%  
@@ -48,7 +47,7 @@ summarise(
 ) 
 print(na_distribution) 
 ``` 
-We have examined the distribution of missing values, and percentage-wise, there is no notable difference between the three groups.
+The distribution of missing values was examined, and percentage-wise, there is no notable difference between the three groups.
 
 Visualising the distribution:
 ```{r} 
@@ -60,11 +59,9 @@ labs(
 ) + 
 theme_minimal() 
 ```
-There is no real difference between the groups. Next step is to conduct a statistical test to determine if there is indeed no significant difference in the NA distribution across the study groups. 
+Percentage-wise, no notable differences in the distribution of missing values (NAs) are observed across the study groups. To determine if this is statistically significant, a chi-square test will be applied. This method is suitable for categorical variables and assesses associations under the assumption of random group distributions.
 
-Since we are working with categorical variables and need to examine the association between them, we will use a chi-square test, which assumes that the distribution between the groups is random.
-
-The goal is actually to prove the null hypothesis, not to reject it: p > 0.05.
+The aim is to provide evidence in favor of the null hypothesis (H₀), with statistical significance evaluated at the threshold of p > 0.05.
 ```{r} 
 chisq_test_data <- metadata %>% 
   mutate(fecalcal_missing = ifelse(is.na(fecalcal), "Missing", "Not Missing")) %>% 
@@ -76,15 +73,14 @@ print(chisq_result)
 ```
 
 #### Interpretation: 
-Based on the p-value (0.8778), we cannot reject the null hypothesis (H₀). This means that there is no evidence of a significant difference in the number of missing values (NAs) between the different study groups (CD, UC, non-IBD).
+Based on the p-value (0.8778), we fail to reject the null hypothesis (H₀), indicating that there is no significant difference in the number of missing values (NAs) across the study groups (CD, UC, non-IBD).
 
-The missing values appear to be randomly distributed across the study groups. Therefore, in this case, you can assume that the missing data is likely missing completely at random (MCAR), meaning that the distribution of NAs does not show any systematic pattern and does not introduce bias into your analysis.
+The missing values appear to be randomly distributed among the groups, suggesting that the missing data is likely missing completely at random (MCAR). This implies that the distribution of NAs does not show any systematic pattern, and therefore, it is unlikely to introduce bias into the analysis.
 
 Now that the NA distribution has been checked, it is also important to verify whether there are any duplicate subjects, as these could potentially influence the results.
 ```{r} 
 duplicated_subjects <- clean_data[duplicated(clean_data$Subject), ]
 ```
-_waarom staat er in de code hierboven een komma voor ]?_
 
 Retrieving the duplicate subjects:
 ```{r} 
@@ -92,7 +88,7 @@ cat("Aantal dubbele subjects:", nrow(duplicated_subjects), "\n")
 print(duplicated_subjects) 
 ```
 
-Duplicate subjects are removed, and the mean of the numerical data for these subjects is calculated while ignoring the NA values.
+Duplicate subjects are removed by calculating the mean of the numerical fecalcal data for these subjects, and are is stored under a new feature called 'fecalcal_mean'.
 ```{r} 
 metadata_clean <- clean_data %>% 
   group_by(Subject) %>% 
@@ -105,17 +101,15 @@ metadata_clean <- clean_data %>%
 print(metadata_clean) 
 ```
 
-Controlling if the duplicate subjects have been removed:
+Controlling if all the duplicate subjects have been removed:
 ```{r}
 duplicated_subjects1 <- metadata_clean[duplicated(metadata_clean$Subject), ] 
 cat("dubble subjects:", nrow(duplicated_subjects1), "\n") 
 print(duplicated_subjects1) 
 ```
-_again, waarom staat er in de code hierboven een komma voor ]?_
 
 ### Descriptive statistics:
-_is deze tussentitel een goede vertaling voor 'Beschrijvende statistieken?_
-Calculates the descriptive statistics (mean, median, SD, min, max) of fecalcal_mean per Study.Group.
+Calculating the mean, median, SD, min, max of fecalcal_mean per Study.Group.
 ```{r} 
 desc_stats <- metadata_clean %>% 
   group_by(Study.Group) %>% 
@@ -132,7 +126,7 @@ print(desc_stats)
 #### Interpretation:
 We observe that the difference in the average values between CD and UC is relatively small. However, there is a much larger difference in the averages between both CD and non-IBD, as well as UC and non-IBD. Additionally, the minimum values across the study groups are very similar. In contrast, the maximum values are more spread out, except for between UC and CD. Notably, the maximum value for non-IBD is close to the median values of both UC and CD
 
-Visualisation of the constribution:
+Visualisation of the distribution:
 ```{r} 
 ggplot(metadata_clean, aes(x = Study.Group, y = fecalcal_mean, fill = Study.Group)) + 
   geom_boxplot() + 
@@ -141,7 +135,7 @@ ggplot(metadata_clean, aes(x = Study.Group, y = fecalcal_mean, fill = Study.Grou
   theme_minimal() 
 ``` 
 
-Histogram of fecal calprotectine per group WITH outliers:
+Histogram of fecal calprotectine per group:
 ```{r} 
 ggplot(metadata_clean, aes(x = fecalcal_mean, fill = Study.Group)) + 
   geom_histogram(binwidth = 50, alpha = 0.6, position = "identity") + 
@@ -149,6 +143,7 @@ ggplot(metadata_clean, aes(x = fecalcal_mean, fill = Study.Group)) +
   labs(title = "Histogram per Group", x = "Calprotectine (µg/g)", y = "Frequency") + 
   theme_minimal() 
 ``` 
+From the boxplots and histogram, we observed that there are outliers in the non-IBD group. These can be filtered using IQR boundaries and subsequently excluded from the data. The outliers are removed to improve the statistical power of the test.
 
 Calculating the IQR boundaries per group:
 ```{r} 
@@ -164,9 +159,6 @@ quartiles <- metadata_clean %>%
     Upper_Bound = Q3 + 1.5 * IQR 
   ) 
 ```
-
-_in de word werd nu nomaals de berekening van de beschrijvende statistieken gedaan (mean,median,SD,min,max) wat dan exact hetzelfde resultaat geeft als hierboven, dus dit heb ik weggelaten_
-
 Add bounderaries to the data:
 ```{r} 
 clean_data_unique <- metadata_clean %>% 
@@ -179,7 +171,7 @@ Boxplot of fecal calprotectine per group WITHOUT outliers:
 ggplot(clean_data_unique, aes(x = Study.Group, y = fecalcal_mean, fill = Study.Group)) + 
   geom_boxplot() + 
   geom_jitter(width = 0.2, alpha = 0.5) + 
-  labs(title = "Fecalcal per Group (no outliers)", y = "Fecalcal (µg/g)", x = "Group") + 
+  labs(title = "Fecalcal per Group (without outliers)", y = "Fecalcal (µg/g)", x = "Group") + 
   theme_minimal()
 ``` 
 
@@ -188,7 +180,7 @@ Histogram of fecal calprotectine per group WITHOUT outliers:
 ggplot(clean_data_unique, aes(x = fecalcal_mean, fill = Study.Group)) + 
   geom_histogram(binwidth = 50, alpha = 0.6, position = "identity") + 
   facet_wrap(~Study.Group) +  
-  labs(title = "Histogram per Group (no outliers)", x = "Calprotectine (µg/g)", y = "Frequency") + 
+  labs(title = "Histogram per Group (without outliers)", x = "Calprotectine (µg/g)", y = "Frequency") + 
   theme_minimal()
 ```
 
@@ -200,7 +192,7 @@ We have added 5 new variables to the clean_data_unique dataset:
 - Lower Bound = Q1 − 1.5 ⋅ IQR
 - Upper Bound = Q3 + 1.5 ⋅ IQR
 
-After removing outliers, we are left with 78 subjects. In the histogram per group (without outliers) of clean_data_unique, we notice that the data do not follow a normal distribution, as no bell-shaped curve is observed per study group. Therefore, we will proceed with a Kruskal-Wallis test to analyze the differences between the groups.
+After removing the outliers, we are left with 78 subjects. In the histogram per group (without outliers) of clean_data_unique, we observe that the data do not follow a normal distribution, as no bell-shaped curve is seen in any of the study groups. Therefore, we will proceed with a non-parametric test, the Kruskal-Wallis test, to analyze the differences between the groups.
 
 Kruskal-Wallis test on the clean_data_unique (without outliers and duplicate subjects).
 ```{r} 
@@ -210,12 +202,7 @@ kruskal.test(fecalcal_mean ~ Study.Group, data = clean_data_unique)
 ``` 
 
 #### Interpretation:
-There is a significant difference in fecal calprotectine levels across the three different study groups, with a standard asymptotic p-value of 0.0001005. We will now first calculate the exact p-value and then examine which specific groups differ using the Wilcoxon test as a post hoc analysis.
-
-While the standard asymptotic p-value may not be optimal with a small number of observations, we have 77 observations in this case, making the p-value reliable. Therefore, we will proceed with calculating the exact p-value.
-
-#### Conclusion:
-We can conclude that there is an extremely significant difference (p = 0.0001005) in the distribution of calprotectin concentration due to the three study groups.
+There is a significant difference in fecal calprotectin levels across the three study groups (P = 0.0001005 << 0.05). To further differentiate between the groups, we will need to perform a post hoc analysis. 
 
 Post-hoc analysis will be conducted using the pairwise Wilcoxon test to examine the differences between the groups.
 ```{r} 
@@ -227,12 +214,14 @@ pairwise_wilcox <- pairwise.wilcox.test(
 print(pairwise_wilcox) 
 ``` 
 #### Interpretation:
-The output displays the p-values from pairwise comparisons in a matrix format, with a Bonferroni correction applied for multiple testing. The results indicate that both CD and UC show significant differences in fecal calprotectin levels compared to non-IBD (p = 0.00014 and p = 0.00027, respectively). However, there is no significant difference in fecal calprotectin levels between CD and UC (p = 1.0000), meaning that fecal calprotectin cannot be used to distinguish between these two groups.
-
-#### Conclusion:
-Fecal calprotectin can effectively differentiate non-IBD from both UC and CD, but it is not a reliable marker to distinguish between CD and UC.
+The output shows p-values from pairwise comparisons with a Bonferroni correction. Both CD and UC differ significantly from non-IBD in fecal calprotectin levels (p = 0.00014 and p = 0.00027). However, no significant difference exists between CD and UC (p = 1.0000), indicating that fecal calprotectin cannot distinguish between these two groups. It is effective in differentiating non-IBD from both UC and CD, but not between CD and UC.
 
 Creating a boxplot using ggboxplot, with Wilcoxon p-values added to show statistical significance.
+```{r}
+install.packages("ggpubr")
+library(ggpubr)
+```
+
 ```{r} 
 ggboxplot( 
   clean_data_unique,  
@@ -274,10 +263,7 @@ clean_data_unique <- clean_data_unique %>%
 ``` 
 
 Kruskal-Wallis Test for IBD vs Non-IBD:
-```{r} 
-install.packages("ggpubr") 
-library(ggpubr) 
-```
+
 ```{r} 
 kruskal_combined <- kruskal.test(fecalcal_mean ~ Group_Combined, data = clean_data_unique) 
 print(kruskal_combined) 
@@ -327,9 +313,7 @@ print(ci_results)
 ```
 
 #### Interpretation:
-The 95% confidence intervals (CIs) for the median fecal calprotectin levels in the IBD and non-IBD groups show distinct patterns. For the IBD group, the CI ranges from 41.48 µg/g to 147.69 µg/g, indicating that the median calprotectin level is significantly elevated, with some variability in the data. In contrast, the non-IBD group has a narrower CI, from 14.87 µg/g to 22.72 µg/g, suggesting a more consistent distribution and much lower median levels compared to the IBD group.
-
-Crucially, the non-overlapping CIs between these groups indicate a statistically significant difference in fecal calprotectin levels. This finding strongly supports the use of fecal calprotectin as a reliable biomarker to distinguish between individuals with IBD and those without. The elevated levels in the IBD group reflect underlying inflammation, further underscoring its diagnostic relevance.
+The 95% confidence intervals (CIs) for median fecal calprotectin levels show distinct patterns between the IBD and non-IBD groups. The IBD group has a CI from 41.48 µg/g to 147.69 µg/g, indicating elevated median levels with some variability. In contrast, the non-IBD group has a narrower CI (14.87 µg/g to 22.72 µg/g), suggesting lower and more consistent levels. The non-overlapping CIs between these groups indicate a statistically significant difference, supporting fecal calprotectin as a reliable biomarker to distinguish IBD from non-IBD.
 
 The Kruskal-Wallis test is used to determine if there is a significant difference in the median fecal calprotectin levels between the "IBD" and "non-IBD" groups:
 ```{r} 
@@ -350,8 +334,12 @@ print(eta_squared)
 #### Interpretation:
 The output provides the effect size (η²) of the Kruskal-Wallis test. A value of 0.229 (rounded) indicates that approximately 22.9% of the variance in calprotectin levels can be explained by the differences between the groups (IBD vs non-IBD). This suggests that the group classification has a notable impact on the variation observed in calprotectin levels.
 
-#### Conclusion:
-The effect size indicates that the group classification ("IBD" vs "non-IBD") significantly contributes to the variation in fecal calprotectin levels, further supporting the utility of fecal calprotectin as a biomarker for distinguishing between these two groups.
+### **Conclusion**:
+Significant differences in fecal calprotectin levels were found across the three study groups (P = 0.0001005 << 0.05). Pairwise comparisons with a Bonferroni correction revealed that both CD and UC differ significantly from non-IBD (p = 0.00014 < 0.05 and p = 0.00027 < 0.05), but no significant difference was observed between CD and UC (p = 1.0000 > 0.05). This allows UC and CD to be grouped together as IBD, distinguishing them from non-IBD, with a statistically significant difference between IBD and non-IBD (p = 1.79e-5 < 0.05).
+
+The 95% confidence intervals (CIs) further support this conclusion, showing non-overlapping CIs that clearly differentiate IBD from non-IBD. The IBD group has a CI ranging from 41.48 µg/g to 147.69 µg/g, while the non-IBD group’s CI is narrower, ranging from 14.87 µg/g to 22.72 µg/g. Additionally, the effect size (η² = 0.229) from the Kruskal-Wallis test indicates that 22.9% of the variance in calprotectin levels can be explained by group differences, further confirming the ability of fecal calprotectin to differentiate between these conditions.
+
+Thus, fecal calprotectin levels can be used as a reliable diagnostic biomarker to differentiate between non-IBD and ulcerative colitis (UC) or Crohn's disease (CD), but not between UC and CD. These findings underscore fecal calprotectin as a reliable biomarker for distinguishing IBD (UC & CD) from non-IBD.
 
 ---------------------------------------------------------------------------------------
 
