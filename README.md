@@ -201,7 +201,7 @@ We have added 5 new variables to the clean_data_unique dataset:
 - Lower Bound = Q1 − 1.5 ⋅ IQR
 - Upper Bound = Q3 + 1.5 ⋅ IQR
 
-After removing the outliers, we are left with 78 subjects. In the histogram per group (without outliers) of clean_data_unique, we observe that the data do not follow a normal distribution, as no bell-shaped curve is seen in any of the study groups. Therefore, we will proceed with a non-parametric test, the Kruskal-Wallis test, to analyze the differences between the groups.
+Outliers were only present in the non-IBD group. After removing the outliers, we are left with 78 subjects. In the histogram per group (without outliers) of clean_data_unique, we observe that the data do not follow a normal distribution, as no bell-shaped curve is seen in any of the study groups. Therefore, we will proceed with a non-parametric test, the Kruskal-Wallis test, to analyze the differences between the groups.
 
 Kruskal-Wallis test on the clean_data_unique (without outliers and duplicate subjects).
 ```{r} 
