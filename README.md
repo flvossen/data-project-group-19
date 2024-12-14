@@ -19,9 +19,19 @@ The following datasets are required for running the code:
 Download both datasets in raw file.
 
 ## How to run the code:
-**ResearchQuestion1&2.Rmd:** Download the raw files and open them in RStudio. Specify the location of the downloaded datasets in the code, then click 'Run All' to execute the entire script.
+**ResearchQuestion1&2.Rmd:** Download the raw files and open them in RStudio. Specify the location of the downloaded datasets in the code: 
+* For Research Question 1, you need to specify the correct file path for the dataset 'metadata' in the file_path variable. Update the file path with the location where the dataset file 'metadata' is stored on your computer, for example: "C:/Users/YourName/Documents".
+* Repeat this process when starting Research Question 2 for the genera_counts dataset. Ensure that you provide the correct path for the genera_counts dataset, like so: "C:/Users/YourName/Documents".
 
-**machinelearning.py:**
+Then click 'Run All' to execute the entire script.
+
+**machinelearning.py:** Open a new notebook in Kaggle. As input add the dataset 'metadata.tsv' 
+In the right-hand panel of your notebook (next to the code editor), click on the "Add Dataset" button.
+A pop-up window will appear showing datasets you've uploaded or ones you've accessed on Kaggle. (previously upload the dataset 'metadata.tsv' in your dataset folder in your kaggle account)
+Search for your dataset by name or browse your datasets and select the one you want to use.
+Once selected, click on "Add" to link the dataset to your notebook
+
+Then copy the whole code from machinelearning.py and paste it into a cell in your kaggle notebook, then click 'run all' to execute the entire script.
 
 ## This file also contains all the codes for all 3 parts (Research Question 1, Research Question 2, and machine learning) with explanation. 
 
