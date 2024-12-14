@@ -11,6 +11,15 @@
 ### Data preparation:
 
 Read data:
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+file_path <- "C:/Users/..."
+```
+
 ```{r}
 metadata <- read_tsv('metadata.tsv')
 ```
