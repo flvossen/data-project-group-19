@@ -14,10 +14,12 @@ The following datasets are required for running the code:
 
 **genera.counts.tsv:** This file contains the count data for different genera.
 
-**metadata.tsv:** This file contains metadata related to the genera, which is necessary for various analyses in both the R and Python scripts.
+**metadata.tsv:** This file contains metadata related to the genera, which is necessary for various analyses in both the Rmd and Python scripts.
+
+Download both datasets in raw file.
 
 ## How to run the code:
-**ResearchQuestion1&2.Rmd:** download the raw file and open this in Rstudio, and click run all.
+**ResearchQuestion1&2.Rmd:** Download the raw files and open them in RStudio. Specify the location of the downloaded datasets in the code, then click 'Run All' to execute the entire script.
 
 **machinelearning.py:**
 
