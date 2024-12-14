@@ -675,7 +675,7 @@ mean_median_sd <- bacteria_data %>%
 # Print the results
 print(mean_median_sd)
 ```
-NonIBD consistently exhibits higher microbial levels, as indicated by the elevated means and medians for taxa such as Clostridia and Bacteroidia. This pattern may reflect healthier or more stable microbial communities in individuals without inflammatory conditions. In contrast, CD and UC display greater variability, particularly evident in the higher standard deviations for taxa like Gammaproteobacteria in CD. This increased variability could be indicative of dysbiosis commonly associated with inflammatory diseases. Meanwhile, certain taxa, such as Bacilli, appear relatively stable across study groups, as shown by their similar mean and median values.
+NonIBD consistently exhibits higher microbial levels, as indicated by the elevated means and medians for taxa such as Clostridia and Bacteroidia. This pattern may reflect healthier or more stable microbial communities in individuals without inflammatory conditions. In contrast, CD and UC display greater variability, particularly evident in the higher standard deviations for taxa like Gammaproteobacteria in CD. This increased variability could be indicative of dysbiosis commonly associated with inflammatory diseases.
 
 ### Normality Testing:
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
