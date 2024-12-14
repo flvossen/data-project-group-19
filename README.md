@@ -17,6 +17,9 @@ The following datasets are required for running the code:
 **metadata.tsv:** This file contains metadata related to the genera, which is necessary for various analyses in both the R and Python scripts.
 
 ## how to run the code:
+**ResearchQuestion1&2.RMD:** download the raw file and open this in Rstudio, and click run all.
+
+**machinelearning.py:**
 
 ## This file also contains all the codes for all 3 parts (Research Question 1, Research Question 2, and machine learning) with explanation. 
 
