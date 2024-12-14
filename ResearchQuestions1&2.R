@@ -348,7 +348,7 @@ print(eta_squared)
 
 #The 95% confidence intervals (CIs) further support this conclusion, showing non-overlapping CIs that clearly differentiate IBD from non-IBD. The IBD group has a CI ranging from 41.48 µg/g to 147.69 µg/g, while the non-IBD group’s CI is narrower, ranging from 14.87 µg/g to 22.72 µg/g. Additionally, the effect size (η² = 0.229) from the Kruskal-Wallis test indicates that 22.9% of the variance in calprotectin levels can be explained by group differences, further confirming the ability of fecal calprotectin to differentiate between these conditions.
 
-@Thus, fecal calprotectin levels can be used as a reliable diagnostic biomarker to differentiate between non-IBD and ulcerative colitis (UC) or Crohn's disease (CD), but not between UC and CD. These findings underscore fecal calprotectin as a reliable biomarker for distinguishing IBD (UC & CD) from non-IBD.
+#Thus, fecal calprotectin levels can be used as a reliable diagnostic biomarker to differentiate between non-IBD and ulcerative colitis (UC) or Crohn's disease (CD), but not between UC and CD. These findings underscore fecal calprotectin as a reliable biomarker for distinguishing IBD (UC & CD) from non-IBD.
 
 # ---------------------------------------------------------------------------------------
 
@@ -417,7 +417,7 @@ print(unique_classes)
 #We observe a total of 275 unique classes, excluding the first generated output, which is treated as NA because it originates from the Sample column.
 
 
-Now we are going to replace all bacterial column names with the bacterial class names:
+#Now we are going to replace all bacterial column names with the bacterial class names:
  
 ```{r}
 # Function to rename column names
@@ -451,7 +451,7 @@ head(genera_counts)
 ```	
 
 
-Samples column is currently labeled as 'Unknown'. Check if any other column is labeled as 'Unknown' as well.
+#Samples column is currently labeled as 'Unknown'. Check if any other column is labeled as 'Unknown' as well.
 
 
 ```{r}
@@ -462,7 +462,7 @@ unknown_count <- sum(colnames(genera_counts) == "Unknown")
 cat("Aantal 'Unknown' kolommen:", unknown_count, "\n")
 ```
 
-Now, merge the columns with the same name. Only the column 'Sample' was named 'Unknown'. So, rename the 'Unknown' column back to 'Sample'.
+#Now, merge the columns with the same name. Only the column 'Sample' was named 'Unknown'. So, rename the 'Unknown' column back to 'Sample'.
 ```{r}
 # Step 1: Keep ‘Unknown’ untouched and rename to ‘Sample’
 genera_counts$Sample <- genera_counts$Unknown
@@ -498,18 +498,18 @@ genera_counts_combined <- genera_counts_combined[, c("Sample", setdiff(names(gen
 # Step 6: Check the result
 print(genera_counts_combined)
 ```
-Append the 'Study.Group' column from the dataset 'metadata' to the 'genera_counts_combined' dataset.
+#Append the 'Study.Group' column from the dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Study.Group")], by = "Sample")
 ```
-Append the 'Subject' column from the dataset 'metadata' to the 'genera_counts_combined' dataset.
+#Append the 'Subject' column from the dataset 'metadata' to the 'genera_counts_combined' dataset.
 
 ```{r}
 genera_counts_combined <- merge(genera_counts_combined, metadata[, c("Sample", "Subject")], by = "Sample")
 ```
 
-Check the number of duplicate subjects.
+#Check the number of duplicate subjects.
 ```{r}
 # Check for duplicate values in the ‘Subject’ column
 duplicated_subjects <- genera_counts_combined[duplicated(genera_counts_combined$Subject), ]
@@ -520,9 +520,9 @@ cat("Amount of duplicate subjects:", nrow(duplicated_subjects), "\n")
 # View duplicate values
 print(duplicated_subjects)
 ```
-The dataset contains 277 duplicate subjects.
+#The dataset contains 277 duplicate subjects.
 
-Now take the average of the double subjects.
+#Now take the average of the double subjects.
 ```{r}
 # Calculate the average for Subjects and retain Study.Group
 genera_counts_combined_clean <- genera_counts_combined %>%
@@ -539,14 +539,14 @@ print(genera_counts_combined_clean)
 # Check the number of unique subjects
 cat("Amount of unique subjects:", n_distinct(genera_counts_combined_clean$Subject), "\n")
 ```
-We now have 105 unique subjects.
+#We now have 105 unique subjects.
 
 
 ### Correlation:
 
-Before performing a correlation matrix analysis, it's important to handle values that may distort the correlation calculations. Specifically, zeros in the dataset might represent missing data or irrelevant values, but they can skew the correlation results if treated as valid numerical values. Since correlation calculations cannot work correctly with zeros representing missing data, we can replace all zeros with NA (Not Available), which will exclude them from the correlation matrix.
+#Before performing a correlation matrix analysis, it's important to handle values that may distort the correlation calculations. Specifically, zeros in the dataset might represent missing data or irrelevant values, but they can skew the correlation results if treated as valid numerical values. Since correlation calculations cannot work correctly with zeros representing missing data, we can replace all zeros with NA (Not Available), which will exclude them from the correlation matrix.
 
-This ensures that zeros are not mistakenly treated as valid values during the correlation calculation, and the correlation matrix will be computed based only on the non-zero (and meaningful) data.
+#This ensures that zeros are not mistakenly treated as valid values during the correlation calculation, and the correlation matrix will be computed based only on the non-zero (and meaningful) data.
 
 
 ```{r}
@@ -561,7 +561,7 @@ print(genera_counts_combined_clean_withNan)
 cat("Number of NaN values in the dataset:", sum(is.nan(as.matrix(genera_counts_combined_clean_withNan))), "\n")
 ```
 
-Visualize the correlation matrix:
+#Visualize the correlation matrix:
 ```{r}
 # Select only numeric variables
 numeric_vars <- sapply(genera_counts_combined_clean_withNan, is.numeric)
@@ -573,9 +573,9 @@ ggcorrplot(correlation_matrix,
            title = "Correlation Matrix", 
            outline.col = "white")
 ```
-The correlation matrix reveals that the dataset contains a large number of variables, indicating high dimensionality. It shows a spread of correlations: some variables exhibit strong positive or negative correlations, while others are scarcely correlated.
+#The correlation matrix reveals that the dataset contains a large number of variables, indicating high dimensionality. It shows a spread of correlations: some variables exhibit strong positive or negative correlations, while others are scarcely correlated.
 
-Therefore, applying a technique such as Principal Component Analysis (PCA) is valuable. PCA can help reduce dimensionality by identifying the most significant components in the data, while retaining a large portion of the variation. This simplifies and makes the dataset more efficient for further analysis.
+#Therefore, applying a technique such as Principal Component Analysis (PCA) is valuable. PCA can help reduce dimensionality by identifying the most significant components in the data, while retaining a large portion of the variation. This simplifies and makes the dataset more efficient for further analysis.
 
 ### Dimensionality reduction:
 
@@ -601,9 +601,9 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = Study.Group)) +
   theme_minimal()
 
 ```
-The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
+#The code aims to reduce the dimensionality of the bacterial abundance data using PCA, and then visualize the data in two dimensions (PC1 and PC2) to see how different study groups (UC, CD, non-IBD) cluster or separate from each other based on their bacterial profiles.
 
-Check for possible outliers:
+#Check for possible outliers:
 ```{r}
 # Calculate Mahalanobis distance in head space
 pca_scores <- pca_result$x[, 1:2]  # The first two main components
@@ -619,9 +619,9 @@ outliers_pca <- which(mahalanobis_pca > threshold_pca)
 # Visualise the outliers
 plot(pca_scores, col = ifelse(mahalanobis_pca > threshold_pca, "red", "black"))
 ```
-We have decided to retain the outliers. Retaining outliers in PCA allows for capturing important, rare variations and reflecting the true complexity and diversity of real-world data, ensuring that meaningful patterns and extreme but legitimate variations are not lost.
+#We have decided to retain the outliers. Retaining outliers in PCA allows for capturing important, rare variations and reflecting the true complexity and diversity of real-world data, ensuring that meaningful patterns and extreme but legitimate variations are not lost.
 
-We used a screeplot to identify the optimal number of principal components to retain by showing the variance explained by each component and highlighting the point where additional components contribute less.
+#We used a screeplot to identify the optimal number of principal components to retain by showing the variance explained by each component and highlighting the point where additional components contribute less.
 ```{r}
 screeplot (pca_result, type='lines',main="PC Variance by PC # (Screeplot) ")
 abline (h=mean ( (pca_result$sdev)^2), col= 'gray' , lty=2)
@@ -630,14 +630,14 @@ cumulative_variance <- cumsum(pca_result$sdev^2 / sum(pca_result$sdev^2))
 num_pcs <- which(cumulative_variance >= 0.9)[1]  # First PC to explain ≥90%
 print(num_pcs)
 ```
-Look for the "elbow point," where the additional variance explained by subsequent principal components becomes minimal, and select the components that together explain more than 90% of the total variance, here PC2.
+#Look for the "elbow point," where the additional variance explained by subsequent principal components becomes minimal, and select the components that together explain more than 90% of the total variance, here PC2.
 
 ```{r}
 # Extract loadings for the principal components
 pca_loadings <- as.data.frame(pca_result$rotation)
 most_influential_classes <- rownames(pca_loadings[order(abs(pca_loadings$PC2), decreasing = TRUE)[1:5], ])
 ```
-From this, we can identify which classes play the most important role and use them to examine whether these differ across study groups. Taking the highest variables (or loadings) of a principal component, means identifying the original variables that contribute most significantly to that component. These variables have the strongest influence on the direction and variance explained by the component, highlighting the key factors or features driving the patterns captured by that principal component. Here we used principal component 2. 
+#From this, we can identify which classes play the most important role and use them to examine whether these differ across study groups. Taking the highest variables (or loadings) of a principal component, means identifying the original variables that contribute most significantly to that component. These variables have the strongest influence on the direction and variance explained by the component, highlighting the key factors or features driving the patterns captured by that principal component. Here we used principal component 2. 
 
 ```{r}
 # PCA loadings as a data frame
@@ -663,11 +663,11 @@ top_influential_classes <- do.call(rbind, top_influential_classes)
 # View the result
 print(top_influential_classes)
 ```
-The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
+#The top 5 bacterial classes are; Clostridia, Bacteroidia, Gammaproteobacteria, Negativicutes, and Bacilli.
 
 ### Descriptive Statistics:
 
-Calculating the mean, median, and standard deviation for the top 5 bacterial classes:
+#Calculating the mean, median, and standard deviation for the top 5 bacterial classes:
 ```{r}
 # Include Study.Group in the bacteria_data subset
 bacteria_data <- genera_counts_combined_clean[, c("Clostridia", "Bacteroidia", "Gammaproteobacteria", "Negativicutes", "Bacilli", "Study.Group")]
@@ -684,7 +684,7 @@ mean_median_sd <- bacteria_data %>%
 # Print the results
 print(mean_median_sd)
 ```
-NonIBD consistently exhibits higher microbial levels, as indicated by the elevated means and medians for taxa such as Clostridia and Bacteroidia. This pattern may reflect healthier or more stable microbial communities in individuals without inflammatory conditions. In contrast, CD and UC display greater variability, particularly evident in the higher standard deviations for taxa like Gammaproteobacteria in CD. This increased variability could be indicative of dysbiosis commonly associated with inflammatory diseases.
+#NonIBD consistently exhibits higher microbial levels, as indicated by the elevated means and medians for taxa such as Clostridia and Bacteroidia. This pattern may reflect healthier or more stable microbial communities in individuals without inflammatory conditions. In contrast, CD and UC display greater variability, particularly evident in the higher standard deviations for taxa like Gammaproteobacteria in CD. This increased variability could be indicative of dysbiosis commonly associated with inflammatory diseases.
 
 ### Normality Testing:
 To determine if the five bacterial classes are normally distributed, we created histograms for each bacterial class by study group and conducted a Shapiro-Wilk test.
@@ -713,7 +713,7 @@ shapiro_results <- sapply(genera_counts_combined_clean[bacterial_classes], funct
 # Display results
 shapiro_results
 ```
-If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be considered normally distributed; otherwise, a p-value below 0.05 indicates significant deviation from normality. In this case, only one value exceeds 0.05, suggesting that most of the data significantly deviate from a normal distribution.
+#If the p-value of the Shapiro-Wilk test is greater than 0.05, the data can be considered normally distributed; otherwise, a p-value below 0.05 indicates significant deviation from normality. In this case, only one value exceeds 0.05, suggesting that most of the data significantly deviate from a normal distribution.
 
 ### PERMANOVA:
 ```{r}
@@ -725,15 +725,15 @@ perm_result <- adonis2(bacteria_data ~ study_group , method = "euclidean", permu
 print(perm_result)
 ```
 #### Interpretation PERMANOVA:
-R2 is the proportion of total variation explained by the study group factor is 0.01432. This means that only about 1.43% of the total variation in bacterial composition can be explained by the study group classification.
+#R2 is the proportion of total variation explained by the study group factor is 0.01432. This means that only about 1.43% of the total variation in bacterial composition can be explained by the study group classification.
 
-The F-statistic is 0.7408, , which measures the ratio of between-group variation to within-group variation. A higher F-value suggests more separation between groups, but this value is relatively low here.
+#The F-statistic is 0.7408, , which measures the ratio of between-group variation to within-group variation. A higher F-value suggests more separation between groups, but this value is relatively low here.
 
-The p-value is 0.52, which is greater than 0.05, indicating that there is no significant difference in the bacterial compositions between the study groups based on the Euclidean distance. 
+#The p-value is 0.52, which is greater than 0.05, indicating that there is no significant difference in the bacterial compositions between the study groups based on the Euclidean distance. 
 
 ### Conclusion:
-The PERMANOVA results indicate that the null hypothesis cannot be rejected. This suggests:
-- No significant association exists between the bacterial composition and study groups (Non-IBD, UC, CD).
-- The small R² value highlights that only a tiny fraction of variance in bacterial composition is attributable to the study group factor.
+#The PERMANOVA results indicate that the null hypothesis cannot be rejected. This suggests:
+#- No significant association exists between the bacterial composition and study groups (Non-IBD, UC, CD).
+#- The small R² value highlights that only a tiny fraction of variance in bacterial composition is attributable to the study group factor.
 
 
