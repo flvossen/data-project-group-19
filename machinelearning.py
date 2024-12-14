@@ -9,13 +9,13 @@
 import pandas as pd
 
 # Load metadata
-data = pd.read_csv('/kaggle/input/metadata-tsv/metadata.tsv',sep='\t')
+metadata = pd.read_csv('/kaggle/input/metadata-tsv/metadata.tsv',sep='\t')
 
 # Display metadata
-data.head()
+metadata.head()
 
 # Check unique subjects
-data.Subject
+metadata.Subject
 
 #### Making sure every subject has only one sample in the dataset 
 # Problem: Some patients in this dataset have multiple samples. To ensure there is only one row per patient, we can combine the rows coming from one subject.
