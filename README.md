@@ -1148,17 +1148,602 @@ The Mean Absolute Error (MAE) = 0.667
 * This suggests that the model's predictions are not highly accurate, and there is room for improvement in classifying the conditions correctly
 * Lower MAE values would indicate better model performance
 
+## MACHINE LEARNING MODEL 2
+Our first model did not perform well. For our next model, we will try to improve by using fewer features by excluding 'BMI_at_baseline', 'Height_at_baseline', and 'Weight_at_baseline'. This allows us to retain more data, as we no longer need to remove rows with missing values for these features.
 
-#### NOG TE DOEN 
-#### model 2 
-- welke y en welke features (x)
-- data splitten in test en validating 
-- PREPROCESSING: feature data normaliseren
-- fit logistic regression model
-- fit random forest model 
-#### model 3 
-- welke y en welke features (x)
-- data splitten in test en validating 
-- PREPROCESSING: feature data normaliseren
-- fit logistic regression model
-- fit random forest model 
+### 1) Defining target value y and features X 
+For our first machine learning model:
+* our target value y = Study.Group_encoded
+* our IBD_features (X) = interval_days, visit_num, Gender_encoded, Anitbiotics_encoded, Race_encoded
+```{python}
+#preparing the data for training a machine learning model by setting up the features (X) and the target variable (y)
+y = metadata_adjusted['Study.Group_encoded']
+IBD_features = ['interval_days',
+       'visit_num', 'Gender_encoded',
+       'Antibiotics_encoded', 'race_encoded]
+X = metadata_adjusted [IBD_features]
+```
+```{python}
+#get dimensions (number of rows, number of columns) of y 
+y.shape
+```
+```{python}
+#get dimensions (number of rows, number of columns) of X
+X.shape
+```
+We see that we have 105 rows and 5 features that are represented as the columns 
+
+### 2) Splitting data into train and test sets 
+Then we split our dataset into training and test sets for building our machine learning model:
+```{python}
+from sklearn.model_selection import train_test_split
+train_X, val_X, train_y, val_y = train_test_split(X, y,random_state = 0)
+```
+### 3) PREPROCESSING DATA: Normalise feature values 
+Next, we take a look at the distribution of our feature values, both for the train set and the test set
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import warnings;
+warnings.filterwarnings('ignore');
+```
+```{python}
+#plotting the distrubution of the train set 
+plt.figure(figsize=(18,6)) #set the size of the plot
+train_X.sample(5, axis="columns").boxplot()
+plt.xticks(rotation=90) #rotate the gene names on the x-axis
+plt.show() #show the plot
+```
+```{python}
+#plotting the distribution of the test set 
+plt.figure(figsize=(18,6)) #set the size of the plot
+val_X.sample(5, axis="columns").boxplot()
+plt.xticks(rotation=90) #rotate the gene names on the x-axis
+plt.show() #show the plot
+```
+The features clearly have very different scales. It is good practice to normalize the range of the features in the dataset.
+
+We can do this with the Scikit-learn object StandardScaler:
+```{python}
+from sklearn.preprocessing import StandardScaler
+
+#First we create a StandardScaler object called scaler_std: 
+scaler_std = StandardScaler()
+```
+```{python}
+#We first compute the mean and standard deviation from the train set:
+scaler_std.fit(train_X)
+
+print("Means:")
+print(scaler_std.mean_)
+print("Variances:")
+print(scaler_std.var_)
+```
+```{python}
+#We then compute the mean and standard deviation from the test set:
+scaler_std.fit(val_X)
+
+print("Means:")
+print(scaler_std.mean_)
+print("Variances:")
+print(scaler_std.var_)
+```
+Next, we normalize the features in the train and test set.
+
+The scaler object has a function transform() that uses the means and variances computed by the fit() function to normalize the features and we can make a Pandas DataFrame with the original column names as follows:
+```{python}
+#normalising the features if the train set 
+train_X_std = scaler_std.transform(train_X)
+train_X_std = pd.DataFrame(train_X_std, columns=train_X.columns)
+
+train_X_std
+```
+```{python}
+# normalising the features of the test set 
+val_X_std = scaler_std.transform(val_X)
+val_X_std = pd.DataFrame(val_X_std, columns=train_X.columns)
+
+val_X_std
+```
+We can now plot the normalized features:
+```{python}
+#plotting distribution of the features of the train set 
+plt.figure(figsize=(18,6))
+train_X_std.sample(5, axis="columns").boxplot()
+plt.xticks(rotation=90)
+plt.show()
+```
+```{python}
+#plotting distribution of the features of the train set
+plt.figure(figsize=(18,6))
+val_X_std.sample(5, axis="columns").boxplot()
+plt.xticks(rotation=90)
+plt.show()
+```
+As we can see, the feature value distributions are now normalized for both the train set and the test set
+
+### 4) FIT LOGISTIC REGRESSION MODEL 
+Now we can fit a logistic regression model.
+In Scikit-learn we first initiate a LogisticRegression mode ! 
+Train the model on the normalized train set:
+```{python}
+from sklearn.linear_model import LogisticRegression
+
+cls_std = LogisticRegression()
+```
+
+```{python}
+# Import the LogisticRegression model
+from sklearn.linear_model import LogisticRegression
+
+# Initialize the logistic regression model
+cls_std = LogisticRegression()
+
+# Fit the model on the normalized train set (features train_X_std and target train_y)
+cls_std.fit(train_X_std, train_y)
+
+# Optionally, print the model's parameters to check if it trained successfully
+print("Model coefficients: ", cls_std.coef_)
+print("Model intercept: ", cls_std.intercept_)
+```
+
+```{python}
+#visualise model coefficients and model interecpt in plots
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# Feature names and model parameters
+feature_names = train_X_std.columns  # Assuming train_X_std is a DataFrame
+coefficients = cls_std.coef_
+intercepts = cls_std.intercept_
+
+# Convert coefficients to a DataFrame for better visualization
+coeff_df = pd.DataFrame(coefficients, columns=feature_names)
+coeff_df['Class'] = [f"Class {i}" for i in range(coefficients.shape[0])]
+
+# Melt the DataFrame for easier plotting
+coeff_melted = coeff_df.melt(id_vars='Class', var_name='Feature', value_name='Coefficient')
+
+# Plot coefficients
+plt.figure(figsize=(12, 8))
+sns.barplot(data=coeff_melted, x='Feature', y='Coefficient', hue='Class')
+plt.title("Logistic Regression Coefficients per Class")
+plt.xticks(rotation=45, ha="right")
+plt.axhline(0, color='grey', linestyle='--')  # Line at 0 for reference
+plt.tight_layout()
+plt.show()
+
+# Display intercepts separately
+plt.figure(figsize=(6, 4))
+sns.barplot(x=[f"Class {i}" for i in range(len(intercepts))], y=intercepts, palette="muted")
+plt.title("Logistic Regression Intercepts per Class")
+plt.ylabel("Intercept Value")
+plt.axhline(0, color='grey', linestyle='--')
+plt.tight_layout()
+plt.show()
+```
+#### INTERPRETATION MODEL PARAMETERS
+1.	Coefficients:
+The model coefficients indicate the relationship between each feature and the probability of belonging to one of the three classes (0 = CD, 1 = UC, 2 = nonIBD).
+Features with larger absolute coefficient values have a stronger impact on the prediction. For example:
+•	Class 0 (CD) shows relatively moderate positive coefficients for certain features (e.g., feature 3 has 0.392), suggesting its importance for predicting this class.
+•	Class 1 (UC) has several negative coefficients (e.g., feature 1 at -0.338), indicating these features reduce the likelihood of belonging to this class.
+•	Class 2 (nonIBD) has a mix of positive and negative coefficients, with feature 1 (0.238) being notable.
+2.	Intercepts: The intercept values control the baseline prediction for each class when all features are zero. For example:
+•	Class 0 has a higher intercept (0.465), meaning the model is initially more biased towards predicting this class compared to the others.
+To determine quality of the model, metrics such as accuracy, precision, recall, or F1-score are needed, as well as insights from a confusion matrix. However, the spread and variability in coefficients suggest the model is using the features to distinguish between classes, which is a positive sign. That said, further evaluation is required to confirm if these coefficients result in accurate predictions.
+
+Computing the accuracy: 
+```{python}
+# Compute predictions on the validation set val_X_std
+predictions_std = cls_std.predict(val_X_std)
+
+# Optionally, print the predicted class labels for each row in val_X_std
+print(predictions_std)
+
+# Alternatively, to get the class probabilities instead of predicted classes:
+predictions_std_proba = cls_std.predict_proba(val_X_std)
+
+# Display the first 10 predicted class probabilities (for both class 0 and class 1)
+print(predictions_std_proba[:10])
+
+# Compute the accuracy of the model's predictions on the validation set
+accuracy = cls_std.score(val_X_std, val_y)
+print("Accuracy: {}".format(accuracy))
+```
+#### INTERPRETATION ACCURACY
+* The accuracy of this machine learning model is 44%, meaning the model correctly classified about 44% of the data points
+* this low accuracy suggests that the model performs only slightly better than random guessing for a multi-class classification problem
+* this also suggests that the model is struggling to generalize well, particularly in distinguishing between classes.
+
+We calculate some other metrics to evaluate the model training
+```{python}
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+
+precision = precision_score(val_y, predictions_std, average='weighted')
+recall = recall_score(val_y, predictions_std, average='weighted')
+f1 = f1_score(val_y, predictions_std, average='weighted')
+
+print(f"Precision: {precision}")
+print(f"Recall: {recall}")
+print(f"F1-Score: {f1}")
+
+# Confusion Matrix
+cm = confusion_matrix(val_y, predictions_std)
+print("Confusion Matrix:\n", cm)
+
+```
+#### INTERPRETATION OTHER METRICS
+The model's performance is quite limited. 
+•	The precision = 29.0% => indicates that only 29% of the predicted positive cases are correct. 
+•	The recall = 44.4% => shows that the model identifies 44.4% of the actual positive cases. 
+•	The F1-score = 32.3% => reflects a poor balance between precision and recall. 
+•	The confusion matrix => shows that most predictions fall into the first class, with minimal success in identifying the other classes. 
+This suggests the model struggles to distinguish between the target classes effectively.
+### 5) FIT RANDOM FOREST MODEL 
+```{python}
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
+
+IBD_model = RandomForestRegressor(random_state=1)
+IBD_model.fit(train_X_std, train_y)
+IBD_preds = IBD_model.predict(val_X_std)
+print(mean_absolute_error(val_y, IBD_preds))
+```
+#### INTERPRETATION MAE (Mean Absolute Error) 
+The Mean Absolute Error (MAE) = 0.755 => indicates that, on average, the predictions of the Random Forest model deviate by approximately 0.76 from the true class labels. Given that the target classes are discrete (0 = CD, 1 = UC, 2 = nonIBD), this suggests the model has difficulty accurately predicting the correct class, often predicting a class that is "close" but not exact. 
+This highlights a need for further improvement of the model 
+
+
+
+## MACHINE LEARNING MODEL 3
+Our second machine learning model did not show significant improvement, so we will attempt another iteration by including the feature 'fecalcal'. Although this feature contains a substantial number of missing values, it could potentially enhance the model's predictive performance.
+Due to some outliers in the nonIBD study group in the column 'fecalcal' we firstly clear the dataset for these.
+```{python}
+import pandas as pd
+import numpy as np
+
+# Copy the dataset to work safely
+metadata_clean = metadata_adjusted.copy()
+
+# Step 1: Filter the nonIBD group and remove NAs
+nonIBD_data = metadata_clean[metadata_clean['Study.Group'] == 'nonIBD']
+nonIBD_data = nonIBD_data.dropna(subset=['fecalcal'])  # Remove NAs from fecalcal
+
+# Calculate IQR for the 'fecalcal' column within the nonIBD group
+Q1 = nonIBD_data['fecalcal'].quantile(0.25)
+Q3 = nonIBD_data['fecalcal'].quantile(0.75)
+IQR = Q3 - Q1
+
+# Determine the bounds for outliers
+Lower_Bound = Q1 - 1.5 * IQR
+Upper_Bound = Q3 + 1.5 * IQR
+
+# Filter out outliers for nonIBD
+nonIBD_clean = nonIBD_data[
+    (nonIBD_data['fecalcal'] >= Lower_Bound) & 
+    (nonIBD_data['fecalcal'] <= Upper_Bound)
+]
+# Step 2: Retain the rows for UC and CD without filtering
+UC_CD_data = metadata_clean[metadata_clean['Study.Group'].isin(['UC', 'CD'])]
+
+# Step 3: Combine the filtered nonIBD data with the original UC and CD data
+clean_metadata = pd.concat([nonIBD_clean, UC_CD_data], axis=0)
+
+# Reset the index for neatness
+clean_metadata = clean_metadata.reset_index(drop=True)
+
+# Result
+print("Number of rows before removing outliers:", len(metadata_clean))
+print("Number of rows after removing outliers:", len(clean_metadata))
+
+# Display the first few rows of the combined clean dataset
+print(clean_metadata.head())
+```
+We transform the non-numeric values of the clean_metadata to numeric values
+```{python}
+from sklearn.preprocessing import LabelEncoder
+
+# Create a LabelEncoder object
+label_encoder = LabelEncoder()
+
+# Apply the encoding
+clean_metadata['Study.Group_encoded'] = label_encoder.fit_transform(clean_metadata['Study.Group'])
+
+# View the mapping
+print(dict(zip(label_encoder.classes_, label_encoder.transform(label_encoder.classes_))))
+
+# View the result
+print(clean_metadata[['Study.Group', 'Study.Group_encoded']].head())
+```
+```{python}
+from sklearn.preprocessing import LabelEncoder
+
+# Create a LabelEncoder object
+label_encoder = LabelEncoder()
+```
+
+```{python}
+# Variables to encode
+categorical_columns = ['Gender', 'Antibiotics', 'race']
+```
+```{python}
+# Loop through the columns and apply label encoding
+for column in categorical_columns:
+    clean_metadata[f'{column}_encoded'] = label_encoder.fit_transform(clean_metadata[column])
+    print(f"Mapping for {column}:")
+    print(dict(zip(label_encoder.classes_, label_encoder.transform(label_encoder.classes_))))
+    print()  # Empty line for readability
+```
+```{python}
+# View the result (for example, the first few rows)
+print(clean_metadata[[col for col in categorical_columns] + [f'{col}_encoded' for col in categorical_columns]].head())
+```
+```{python}
+#there are still some missing values in 'fecalcal' so we first remove these: 
+clean_metadata_withoutNA = clean_metadata.dropna(subset=['fecalcal'], axis=0)
+```
+### 1) Defining target value y and features X 
+For our first machine learning model:
+* our target value y = Study.Group_encoded
+* our IBD_features (X) = interval_days, visit_num, Gender_encoded, Anitbiotics_encoded, Race_encoded, fecalcal
+```{python}
+#preparing the data for training a machine learning model by setting up the features (X) and the target variable (y)
+y = clean_metadata_withoutNA['Study.Group_encoded']
+IBD_features = ['interval_days',
+       'visit_num', 'Gender_encoded',
+       'Antibiotics_encoded', 'race_encoded','fecalcal']
+X = clean_metadata_withoutNA[IBD_features]
+```
+```{python}
+#get dimensions (number of rows, number of columns) of y 
+y.shape
+```
+```{python}
+#get dimensions (number of rows, number of columns) of X
+X.shape
+```
+We see that we have 78 remaining rows after removing outliers and missing values in 'fecalcal' and 6 features that are represented as the columns
+
+### 2) Splitting data into train and test sets 
+Then we split our dataset into training and test sets for building our machine learning model:
+```{python}
+from sklearn.model_selection import train_test_split
+train_X, val_X, train_y, val_y = train_test_split(X, y,random_state = 0)
+```
+### 3) PREPROCESSING DATA: Normalise feature values 
+Next, we take a look at the distribution of our feature values, both for the train set and the test set
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import warnings;
+warnings.filterwarnings('ignore');
+```
+```{python}
+#plotting the distrubution of the train set 
+plt.figure(figsize=(18,6)) #set the size of the plot
+train_X.sample(6, axis="columns").boxplot()
+plt.xticks(rotation=90) #rotate the gene names on the x-axis
+plt.show() #show the plot
+```
+```{python}
+#plotting the distribution of the test set 
+plt.figure(figsize=(18,6)) #set the size of the plot
+val_X.sample(6, axis="columns").boxplot()
+plt.xticks(rotation=90) #rotate the gene names on the x-axis
+plt.show() #show the plot
+```
+The features clearly have very different scales. It is good practice to normalize the range of the features in the dataset.
+
+We can do this with the Scikit-learn object StandardScaler:
+```{python}
+from sklearn.preprocessing import StandardScaler
+
+#First we create a StandardScaler object called scaler_std: 
+scaler_std = StandardScaler()
+```
+```{python}
+#We first compute the mean and standard deviation from the train set:
+scaler_std.fit(train_X)
+
+print("Means:")
+print(scaler_std.mean_)
+print("Variances:")
+print(scaler_std.var_)
+```
+```{python}
+#We then compute the mean and standard deviation from the test set:
+scaler_std.fit(val_X)
+
+print("Means:")
+print(scaler_std.mean_)
+print("Variances:")
+print(scaler_std.var_)
+```
+Next, we normalize the features in the train and test set.
+
+The scaler object has a function transform() that uses the means and variances computed by the fit() function to normalize the features and we can make a Pandas DataFrame with the original column names as follows:
+```{python}
+#normalising the features if the train set 
+train_X_std = scaler_std.transform(train_X)
+train_X_std = pd.DataFrame(train_X_std, columns=train_X.columns)
+
+train_X_std
+```
+```{python}
+# normalising the features of the test set 
+val_X_std = scaler_std.transform(val_X)
+val_X_std = pd.DataFrame(val_X_std, columns=train_X.columns)
+
+val_X_std
+```
+We can now plot the normalized features:
+```{python}
+#plotting distribution of the features of the train set 
+plt.figure(figsize=(18,6))
+train_X_std.sample(5, axis="columns").boxplot()
+plt.xticks(rotation=90)
+plt.show()
+```
+```{python}
+#plotting distribution of the features of the train set
+plt.figure(figsize=(18,6))
+val_X_std.sample(5, axis="columns").boxplot()
+plt.xticks(rotation=90)
+plt.show()
+```
+As we can see, the feature value distributions are now normalized for both the train set and the test set
+
+### 4) FIT LOGISTIC REGRESSION MODEL 
+Now we can fit a logistic regression model.
+In Scikit-learn we first initiate a LogisticRegression mode ! 
+Train the model on the normalized train set:
+```{python}
+from sklearn.linear_model import LogisticRegression
+
+cls_std = LogisticRegression()
+```
+
+```{python}
+# Import the LogisticRegression model
+from sklearn.linear_model import LogisticRegression
+
+# Initialize the logistic regression model
+cls_std = LogisticRegression()
+
+# Fit the model on the normalized train set (features train_X_std and target train_y)
+cls_std.fit(train_X_std, train_y)
+
+# Optionally, print the model's parameters to check if it trained successfully
+print("Model coefficients: ", cls_std.coef_)
+print("Model intercept: ", cls_std.intercept_)
+```
+
+```{python}
+#visualise model coefficients and model interecpt in plots
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# Feature names and model parameters
+feature_names = train_X_std.columns  # Assuming train_X_std is a DataFrame
+coefficients = cls_std.coef_
+intercepts = cls_std.intercept_
+
+# Convert coefficients to a DataFrame for better visualization
+coeff_df = pd.DataFrame(coefficients, columns=feature_names)
+coeff_df['Class'] = [f"Class {i}" for i in range(coefficients.shape[0])]
+
+# Melt the DataFrame for easier plotting
+coeff_melted = coeff_df.melt(id_vars='Class', var_name='Feature', value_name='Coefficient')
+
+# Plot coefficients
+plt.figure(figsize=(12, 8))
+sns.barplot(data=coeff_melted, x='Feature', y='Coefficient', hue='Class')
+plt.title("Logistic Regression Coefficients per Class")
+plt.xticks(rotation=45, ha="right")
+plt.axhline(0, color='grey', linestyle='--')  # Line at 0 for reference
+plt.tight_layout()
+plt.show()
+
+# Display intercepts separately
+plt.figure(figsize=(6, 4))
+sns.barplot(x=[f"Class {i}" for i in range(len(intercepts))], y=intercepts, palette="muted")
+plt.title("Logistic Regression Intercepts per Class")
+plt.ylabel("Intercept Value")
+plt.axhline(0, color='grey', linestyle='--')
+plt.tight_layout()
+plt.show()
+```
+#### INTERPRETATION MODEL PARAMETERS
+**Interpretation of Model Parameters**
+1) Coefficients:
+The model coefficients indicate the influence of each feature on the predicted probability of each class (UC, CD, and nonIBD)
+
+UC (Ulcerative Colitis):
+* Positive coefficients for several features (0.010275, 0.18597852, 0.28646124, 0.34362554, 0.60718502) suggest that as these feature values increase, the likelihood of the sample being classified as UC increases.
+* The feature with the highest coefficient (0.60718502) suggests a particularly strong influence on the prediction of UC.
+
+CD (Crohn's Disease):
+* Negative coefficients (-0.08684992, -0.1651958, -0.22918266) indicate that higher values for these features tend to decrease the likelihood of being classified as CD.
+* However, some positive coefficients (0.34670619, 0.60680137) show that other features can increase the likelihood of CD.
+* Conversely, a few positive coefficients (0.07657491, 0.26170075) increase the likelihood of nonIBD.
+
+nonIBD:
+* Negative coefficients (-0.63316743, -1.21398639) show that certain features significantly reduce the likelihood of the sample being classified as nonIBD.
+
+Intercepts:
+* UC: The intercept (0.58910607) suggests that, when all feature values are zero, the model's baseline prediction is higher for UC.
+* CD: The intercept (0.31247959) indicates a slightly lower baseline likelihood of being classified as CD compared to UC.
+* nonIBD: The negative intercept (-0.90158565) indicates that the baseline prediction for nonIBD is lower compared to UC and CD.
+
+The model seems to have captured some meaningful relationships between the features and the study groups (UC, CD, and nonIBD). Some features, especially those with higher coefficients (e.g., 0.60718502 for UC), suggest that the model has strong predictors for certain classes. The negative coefficients for some features in nonIBD (-1.21398639) indicate the model is able to distinguish between the groups.
+
+However, the relative size of the coefficients and intercepts suggests that the model could benefit from additional tuning or feature engineering to improve predictions. The magnitude of some coefficients implies certain features strongly influence class predictions, but a balanced impact across features and regularization could enhance the model's quality.
+
+
+Computing the accuracy: 
+```{python}
+# Compute predictions on the validation set val_X_std
+predictions_std = cls_std.predict(val_X_std)
+
+# Optionally, print the predicted class labels for each row in val_X_std
+print(predictions_std)
+
+# Alternatively, to get the class probabilities instead of predicted classes:
+predictions_std_proba = cls_std.predict_proba(val_X_std)
+
+# Display the first 10 predicted class probabilities (for both class 0 and class 1)
+print(predictions_std_proba[:10])
+
+# Compute the accuracy of the model's predictions on the validation set
+accuracy = cls_std.score(val_X_std, val_y)
+print("Accuracy: {}".format(accuracy))
+```
+#### INTERPRETATION ACCURACY
+* Unfortunatly we see again a very low accuray of 45%, meaning that the model correctly classified about 44% of the data points
+* this low accuracy suggests that the model performs only slightly better than random guessing for a multi-class classification problem
+* this also suggests that the model is struggling to generalize well, particularly in distinguishing between classes.
+
+We calculate some other metrics to evaluate the model training
+```{python}
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+
+precision = precision_score(val_y, predictions_std, average='weighted')
+recall = recall_score(val_y, predictions_std, average='weighted')
+f1 = f1_score(val_y, predictions_std, average='weighted')
+
+print(f"Precision: {precision}")
+print(f"Recall: {recall}")
+print(f"F1-Score: {f1}")
+
+# Confusion Matrix
+cm = confusion_matrix(val_y, predictions_std)
+print("Confusion Matrix:\n", cm)
+
+```
+#### INTERPRETATION OTHER METRICS
+The model's performance metrics show moderate predictive ability
+Precision = 0.48 =>  indicates that 48% of the instances predicted as a certain class (UC, CD, or nonIBD) were correct.
+Recall = 0.45 =>  means that the model correctly identified 45% of the actual instances for the predicted classes.
+F1-Score = 0.4575 =>  suggests a need for improvement in capturing all relevant instances while maintaining prediction accuracy.
+The Confusion Matrix further shows that the model struggles with distinguishing between some classes, as indicated by the misclassified instances, particularly in the UC and nonIBD categories.
+
+### 5) FIT RANDOM FOREST MODEL 
+```{python}
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
+
+IBD_model = RandomForestRegressor(random_state=1)
+IBD_model.fit(train_X_std, train_y)
+IBD_preds = IBD_model.predict(val_X_std)
+print(mean_absolute_error(val_y, IBD_preds))
+```
+#### INTERPRETATION MAE (Mean Absolute Error) 
+The Mean Absolute Error (MAE) = 0.688 -> indicates that the model's predictions deviate from the actual values by approximately 0.688 units. This value suggests moderate prediction accuracy, with room for improvement in reducing the error between predicted and actual outcomes.
+
