@@ -5,7 +5,7 @@
 This repository contains code for analyzing and processing datasets related to the microbiome. The code is split into two sections: an R script for performing data analysis and a Python script for machine learning tasks. The necessary datasets are also included in this repository.
 
 ## Files and Their Purpose:
-**ResearchQuestions1&2.R:** An R script that addresses specific research questions and performs detailed data analysis.
+**ResearchQuestions1&2.Rmd:** An Rmd script that addresses specific research questions and performs detailed data analysis.
 
 **machinelearning.py:** A Python script that applies machine learning models to the dataset, performing tasks such as model training, evaluation, and prediction.
 
