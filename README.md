@@ -16,6 +16,8 @@ The following datasets are required for running the code:
 
 **metadata.tsv:** This file contains metadata related to the genera, which is necessary for various analyses in both the R and Python scripts.
 
+## This file also contains all the codes for all 3 parts (Research Question 1, Research Qeustion 2, and machine learning) with explanation. 
+
 # Research question 1 (univariate analysis): 
 
 ## Can calprotectin levels be used as a diagnostic biomarker to differentiate between non-IBD, ulcerative colitis (UC), and Crohn's disease (CD) in patients?
