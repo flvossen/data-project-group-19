@@ -19,7 +19,7 @@ The following datasets are required for running the code:
 Download both datasets in raw file.
 
 ## How to run the code:
-**ResearchQuestion1&2.Rmd:** Download the raw files and open them in RStudio. Specify the location of the downloaded datasets in the code: 
+**ResearchQuestion1&2.Rmd:** Download the raw file and open it in RStudio. Specify the location of the downloaded datasets in the code: 
 * For Research Question 1, you need to specify the correct file path for the dataset 'metadata' in the file_path variable. Update the file path with the location where the dataset file 'metadata' is stored on your computer, for example: "C:/Users/YourName/Documents".
 * Repeat this process when starting Research Question 2 for the genera_counts dataset. Ensure that you provide the correct path for the genera_counts dataset, like so: "C:/Users/YourName/Documents".
 
