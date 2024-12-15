@@ -1165,8 +1165,55 @@ print(f"F1-Score: {f1}")
 # Confusion Matrix
 cm = confusion_matrix(val_y, predictions_std)
 print("Confusion Matrix:\n", cm)
-
 ```
+#### Visualisation other metrics
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
+
+# Example predictions (replace these with your actual data)
+predictions_std = cls_std.predict(val_X_std)
+accuracy = cls_std.score(val_X_std, val_y)
+precision = precision_score(val_y, predictions_std, average='weighted')
+recall = recall_score(val_y, predictions_std, average='weighted')
+f1 = f1_score(val_y, predictions_std, average='weighted')
+cm = confusion_matrix(val_y, predictions_std)
+
+# Create a dataframe for metrics
+data = {
+    'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+    'Value': [accuracy, precision, recall, f1]
+}
+metrics_df = pd.DataFrame(data)
+
+# Plot the table and confusion matrix
+fig, ax = plt.subplots(2, 1, figsize=(8, 8), gridspec_kw={'height_ratios': [1, 2]})
+
+# Add the main title
+fig.suptitle('Model 1', fontsize=14, fontweight='bold')
+
+# Table for metrics
+ax[0].axis('tight')
+ax[0].axis('off')
+table = ax[0].table(cellText=metrics_df.values,
+                    colLabels=metrics_df.columns,
+                    loc='center',
+                    cellLoc='center', rowLoc='center')
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+# Confusion matrix heatmap
+disp = ConfusionMatrixDisplay(cm)
+disp.plot(cmap='Blues', ax=ax[1], colorbar=False)
+ax[1].set_title('Confusion Matrix', fontsize=12)
+
+# Adjust layout
+plt.tight_layout(rect=[0, 0, 1, 0.95])  # Leaves space for the suptitle
+plt.show()
+```
+
 #### INTERPRETATION OTHER METRICS
 * Precision = 0.561 => When the model predicts a class as positive, it is correct 56.1% of the time. This indicates moderate precision.
 * Recall = 0.429 => The model correctly identifies 42.9% of the actual positive cases, showing it misses many true positives.
@@ -1185,6 +1232,38 @@ IBD_model = RandomForestRegressor(random_state=1)
 IBD_model.fit(train_X_std, train_y)
 IBD_preds = IBD_model.predict(val_X_std)
 print(mean_absolute_error(val_y, IBD_preds))
+```
+#### Visualisation MAE 
+```{python}
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import mean_absolute_error
+
+# Calculate MAE
+mae = mean_absolute_error(val_y, IBD_preds)
+
+# Create a small table with MAE
+data = {'Metric': ['Mean Absolute Error'], 'Value': [mae]}
+mae_df = pd.DataFrame(data)
+
+# Plot the table
+fig, ax = plt.subplots(figsize=(4, 2))  # Adjust size as needed
+ax.axis('tight')
+ax.axis('off')
+# Add the table
+table = ax.table(cellText=mae_df.values, 
+                 colLabels=mae_df.columns, 
+                 loc='center', 
+                 cellLoc='center', rowLoc='center')
+
+# Adjust table styling
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+
+plt.title("Model 1: Mean Absolute Error", fontsize=10, weight='bold')
+plt.tight_layout()
+plt.show()
 ```
 #### INTERPRETATION MAE (Mean Absolute Error) 
 The Mean Absolute Error (MAE) = 0.667
@@ -1420,6 +1499,52 @@ cm = confusion_matrix(val_y, predictions_std)
 print("Confusion Matrix:\n", cm)
 
 ```
+#### Visualisation other metrics 
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
+
+# Example predictions (replace these with your actual data)
+predictions_std = cls_std.predict(val_X_std)
+accuracy = cls_std.score(val_X_std, val_y)
+precision = precision_score(val_y, predictions_std, average='weighted')
+recall = recall_score(val_y, predictions_std, average='weighted')
+f1 = f1_score(val_y, predictions_std, average='weighted')
+cm = confusion_matrix(val_y, predictions_std)
+
+# Create a dataframe for metrics
+data = {
+    'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+    'Value': [accuracy, precision, recall, f1]
+}
+metrics_df = pd.DataFrame(data)
+# Plot the table and confusion matrix
+fig, ax = plt.subplots(2, 1, figsize=(8, 8), gridspec_kw={'height_ratios': [1, 2]})
+
+# Add the main title
+fig.suptitle('Model 2', fontsize=14, fontweight='bold')
+
+# Table for metrics
+ax[0].axis('tight')
+ax[0].axis('off')
+table = ax[0].table(cellText=metrics_df.values,
+                    colLabels=metrics_df.columns,
+                    loc='center',
+                    cellLoc='center', rowLoc='center')
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+# Confusion matrix heatmap
+disp = ConfusionMatrixDisplay(cm)
+disp.plot(cmap='Blues', ax=ax[1], colorbar=False)
+ax[1].set_title('Confusion Matrix', fontsize=12)
+
+# Adjust layout
+plt.tight_layout(rect=[0, 0, 1, 0.95])  # Leaves space for the suptitle
+plt.show()
+```
 #### INTERPRETATION OTHER METRICS
 The model's performance is quite limited. 
 •	The precision = 29.0% => indicates that only 29% of the predicted positive cases are correct. 
@@ -1436,6 +1561,38 @@ IBD_model = RandomForestRegressor(random_state=1)
 IBD_model.fit(train_X_std, train_y)
 IBD_preds = IBD_model.predict(val_X_std)
 print(mean_absolute_error(val_y, IBD_preds))
+```
+#### Visualisation MAE 
+```{python}
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import mean_absolute_error
+
+# Calculate MAE
+mae = mean_absolute_error(val_y, IBD_preds)
+
+# Create a small table with MAE
+data = {'Metric': ['Mean Absolute Error'], 'Value': [mae]}
+mae_df = pd.DataFrame(data)
+
+# Plot the table
+fig, ax = plt.subplots(figsize=(4, 2))  # Adjust size as needed
+ax.axis('tight')
+ax.axis('off')
+# Add the table
+table = ax.table(cellText=mae_df.values, 
+                 colLabels=mae_df.columns, 
+                 loc='center', 
+                 cellLoc='center', rowLoc='center')
+
+# Adjust table styling
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+
+plt.title("Model 2: Mean Absolute Error", fontsize=10, weight='bold')
+plt.tight_layout()
+plt.show()
 ```
 #### INTERPRETATION MAE (Mean Absolute Error) 
 The Mean Absolute Error (MAE) = 0.755 => indicates that, on average, the predictions of the Random Forest model deviate by approximately 0.76 from the true class labels. Given that the target classes are discrete (0 = CD, 1 = UC, 2 = nonIBD), this suggests the model has difficulty accurately predicting the correct class, often predicting a class that is "close" but not exact. 
@@ -1771,6 +1928,52 @@ cm = confusion_matrix(val_y, predictions_std)
 print("Confusion Matrix:\n", cm)
 
 ```
+#### Visualisation other metrics 
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
+
+# Example predictions (replace these with your actual data)
+predictions_std = cls_std.predict(val_X_std)
+accuracy = cls_std.score(val_X_std, val_y)
+precision = precision_score(val_y, predictions_std, average='weighted')
+recall = recall_score(val_y, predictions_std, average='weighted')
+f1 = f1_score(val_y, predictions_std, average='weighted')
+cm = confusion_matrix(val_y, predictions_std)
+
+# Create a dataframe for metrics
+data = {
+    'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+    'Value': [accuracy, precision, recall, f1]
+}
+metrics_df = pd.DataFrame(data)
+# Plot the table and confusion matrix
+fig, ax = plt.subplots(2, 1, figsize=(8, 8), gridspec_kw={'height_ratios': [1, 2]})
+
+# Add the main title
+fig.suptitle('Model 3', fontsize=14, fontweight='bold')
+
+# Table for metrics
+ax[0].axis('tight')
+ax[0].axis('off')
+table = ax[0].table(cellText=metrics_df.values,
+                    colLabels=metrics_df.columns,
+                    loc='center',
+                    cellLoc='center', rowLoc='center')
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+# Confusion matrix heatmap
+disp = ConfusionMatrixDisplay(cm)
+disp.plot(cmap='Blues', ax=ax[1], colorbar=False)
+ax[1].set_title('Confusion Matrix', fontsize=12)
+
+# Adjust layout
+plt.tight_layout(rect=[0, 0, 1, 0.95])  # Leaves space for the suptitle
+plt.show()
+```
 #### INTERPRETATION OTHER METRICS
 The model's performance metrics show moderate predictive ability
 Precision = 0.48 =>  indicates that 48% of the instances predicted as a certain class (UC, CD, or nonIBD) were correct.
@@ -1787,6 +1990,38 @@ IBD_model = RandomForestRegressor(random_state=1)
 IBD_model.fit(train_X_std, train_y)
 IBD_preds = IBD_model.predict(val_X_std)
 print(mean_absolute_error(val_y, IBD_preds))
+```
+#### Visualisation MAE 
+```{python}
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import mean_absolute_error
+
+# Calculate MAE
+mae = mean_absolute_error(val_y, IBD_preds)
+
+# Create a small table with MAE
+data = {'Metric': ['Mean Absolute Error'], 'Value': [mae]}
+mae_df = pd.DataFrame(data)
+
+# Plot the table
+fig, ax = plt.subplots(figsize=(4, 2))  # Adjust size as needed
+ax.axis('tight')
+ax.axis('off')
+# Add the table
+table = ax.table(cellText=mae_df.values, 
+                 colLabels=mae_df.columns, 
+                 loc='center', 
+                 cellLoc='center', rowLoc='center')
+
+# Adjust table styling
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
+
+plt.title("Model 3: Mean Absolute Error", fontsize=10, weight='bold')
+plt.tight_layout()
+plt.show()
 ```
 #### INTERPRETATION MAE (Mean Absolute Error) 
 The Mean Absolute Error (MAE) = 0.688 -> indicates that the model's predictions deviate from the actual values by approximately 0.688 units. This value suggests moderate prediction accuracy, with room for improvement in reducing the error between predicted and actual outcomes.
